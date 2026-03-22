@@ -1,0 +1,513 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'DM Sans', 'Outfit', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-heading: 'Outfit', 'DM Sans', sans-serif;
+
+  /* Deep navy palette inspired by premium fintech */
+  --color-bg-primary: #06070e;
+  --color-bg-secondary: #0b0d18;
+  --color-bg-card: rgba(14, 17, 30, 0.65);
+  --color-bg-card-solid: #0e111e;
+  --color-bg-card-hover: rgba(20, 24, 42, 0.7);
+  --color-bg-input: rgba(18, 22, 40, 0.8);
+  --color-bg-elevated: rgba(22, 26, 48, 0.6);
+
+  --color-border-subtle: rgba(140, 130, 255, 0.08);
+  --color-border-medium: rgba(140, 130, 255, 0.18);
+  --color-border-glow: rgba(140, 130, 255, 0.25);
+
+  --color-text-primary: #eeeef4;
+  --color-text-secondary: #9a9ab8;
+  --color-text-muted: #5c5c7a;
+
+  --color-fire-start: #FF6B35;
+  --color-fire-end: #FFB347;
+  --color-teal: #2DD4BF;
+  --color-teal-dim: rgba(45, 212, 191, 0.12);
+  --color-debt-red: #EF4444;
+  --color-red-dim: rgba(239, 68, 68, 0.12);
+  --color-green: #22C55E;
+  --color-green-dim: rgba(34, 197, 94, 0.12);
+  --color-amber: #F59E0B;
+  --color-amber-dim: rgba(245, 158, 11, 0.12);
+  --color-purple: #8b7cf7;
+  --color-purple-dim: rgba(139, 124, 247, 0.12);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Background gradient orbs ── */
+.bg-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.35;
+}
+
+.bg-orb-1 {
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, rgba(100, 60, 220, 0.5), transparent 70%);
+  top: -15%;
+  left: 30%;
+  animation: orb-float-1 20s ease-in-out infinite;
+}
+
+.bg-orb-2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(200, 50, 150, 0.4), transparent 70%);
+  top: 20%;
+  right: -10%;
+  animation: orb-float-2 25s ease-in-out infinite;
+}
+
+.bg-orb-3 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(30, 80, 220, 0.35), transparent 70%);
+  bottom: -10%;
+  left: -10%;
+  animation: orb-float-3 22s ease-in-out infinite;
+}
+
+@keyframes orb-float-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, 30px) scale(1.05); }
+  66% { transform: translate(-20px, -15px) scale(0.95); }
+}
+
+@keyframes orb-float-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-30px, 20px) scale(1.08); }
+  66% { transform: translate(20px, -25px) scale(0.93); }
+}
+
+@keyframes orb-float-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(30px, -20px) scale(1.06); }
+}
+
+/* ── Fire gradient text ── */
+.fire-text {
+  background: linear-gradient(135deg, var(--color-fire-start), var(--color-fire-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Glassmorphism card ── */
+.card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 16px;
+  padding: 28px;
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+}
+
+.card:hover {
+  border-color: var(--color-border-medium);
+  box-shadow: 0 0 30px rgba(100, 60, 220, 0.04);
+}
+
+/* Card with inner glow highlight on top edge */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 20%;
+  right: 20%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(140, 130, 255, 0.2), transparent);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+/* ── Input styling ── */
+input[type="text"],
+input[type="number"],
+select {
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+  outline: none;
+  border-color: rgba(139, 124, 247, 0.5);
+  box-shadow: 0 0 0 3px rgba(139, 124, 247, 0.1), 0 0 20px rgba(139, 124, 247, 0.06);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(140, 130, 255, 0.18);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 130, 255, 0.3);
+}
+
+/* ── Pulse animation for progress bar leading edge ── */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px currentColor; }
+  50% { opacity: 0.6; box-shadow: 0 0 16px currentColor; }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* ── Fire spark animation ── */
+@keyframes spark {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-20px) scale(0); opacity: 0; }
+}
+
+.spark-particle {
+  animation: spark 0.8s ease-out forwards;
+}
+
+/* ── Smooth number transitions ── */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Recharts tooltip ── */
+.recharts-tooltip-wrapper {
+  outline: none !important;
+}
+
+/* ── Strategy toggle ── */
+.strategy-active {
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.12), rgba(255, 179, 71, 0.06));
+  border-color: rgba(255, 107, 53, 0.5) !important;
+  box-shadow: 0 0 25px rgba(255, 107, 53, 0.08);
+}
+
+/* ── Debt item ── */
+.debt-item {
+  transition: all 0.25s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.debt-item:hover {
+  background: var(--color-bg-card-hover);
+  border-color: var(--color-border-medium);
+}
+
+/* ── Remove number input spinners ── */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* ── Fade in ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* ── Celebrate ── */
+@keyframes celebrate {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.celebrate {
+  animation: celebrate 0.5s ease-in-out;
+}
+
+/* ── Section heading accent bar ── */
+.section-accent {
+  position: relative;
+  padding-left: 14px;
+}
+
+.section-accent::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 3px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--color-fire-start), var(--color-purple));
+}
+
+/* ── Glow badge ── */
+.glow-badge {
+  position: relative;
+}
+
+.glow-badge::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.3), rgba(139, 124, 247, 0.3));
+  z-index: -1;
+  filter: blur(8px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.glow-badge:hover::after {
+  opacity: 1;
+}
+
+/* ══════════════════════════════════════════════
+   PRINT STYLES
+   Converts the dark UI to a clean light layout
+   for browser Print / Save as PDF
+   ══════════════════════════════════════════════ */
+@media print {
+  /* Reset dark theme to light for paper */
+  * {
+    color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #1a1a1a !important;
+  }
+
+  /* Hide ambient background orbs */
+  .bg-scene {
+    display: none !important;
+  }
+
+  /* Hide interactive elements that don't make sense on paper */
+  button,
+  select,
+  input,
+  nav {
+    display: none !important;
+  }
+
+  /* But keep the strategy buttons visible as display cards */
+  [aria-pressed] {
+    display: block !important;
+    border: 1px solid #ccc !important;
+  }
+
+  /* Hide action buttons inside debt items */
+  .debt-item button {
+    display: none !important;
+  }
+
+  /* Show debt items */
+  .debt-item {
+    display: flex !important;
+    backdrop-filter: none !important;
+  }
+
+  /* Cards: white bg, subtle border, no blur */
+  .card {
+    background: #ffffff !important;
+    border: 1px solid #e0e0e0 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+
+  .card::before {
+    display: none !important;
+  }
+
+  /* Fix all text to dark for readability */
+  h1, h2, h3, h4, h5, h6,
+  p, span, div, td, th, label {
+    color: #1a1a1a !important;
+    -webkit-text-fill-color: #1a1a1a !important;
+    background: none !important;
+  }
+
+  /* Preserve colored numbers for quick scanning */
+  .text-debt-red {
+    color: #dc2626 !important;
+    -webkit-text-fill-color: #dc2626 !important;
+  }
+
+  .text-green {
+    color: #16a34a !important;
+    -webkit-text-fill-color: #16a34a !important;
+  }
+
+  .text-teal {
+    color: #0d9488 !important;
+    -webkit-text-fill-color: #0d9488 !important;
+  }
+
+  .text-amber {
+    color: #d97706 !important;
+    -webkit-text-fill-color: #d97706 !important;
+  }
+
+  .fire-text {
+    color: #ea580c !important;
+    -webkit-text-fill-color: #ea580c !important;
+    background: none !important;
+  }
+
+  /* Muted text stays gray */
+  .text-text-muted {
+    color: #6b7280 !important;
+    -webkit-text-fill-color: #6b7280 !important;
+  }
+
+  .text-text-secondary {
+    color: #4b5563 !important;
+    -webkit-text-fill-color: #4b5563 !important;
+  }
+
+  /* Backgrounds for cards/inputs */
+  .bg-bg-card,
+  .bg-bg-input,
+  .bg-bg-elevated,
+  .bg-bg-card-solid,
+  .bg-bg-secondary,
+  .bg-bg-primary {
+    background: #ffffff !important;
+  }
+
+  .bg-green-dim {
+    background: #f0fdf4 !important;
+  }
+
+  .bg-red-dim {
+    background: #fef2f2 !important;
+  }
+
+  /* Borders */
+  .border-border-subtle,
+  .border-border-medium {
+    border-color: #e5e7eb !important;
+  }
+
+  /* Strategy active */
+  .strategy-active {
+    background: #fff7ed !important;
+    border-color: #ea580c !important;
+    box-shadow: none !important;
+  }
+
+  /* Summary bar stat cards */
+  .bg-bg-card.border {
+    background: #f9fafb !important;
+  }
+
+  /* Tables */
+  table {
+    border-collapse: collapse;
+  }
+
+  th {
+    border-bottom: 2px solid #d1d5db !important;
+  }
+
+  tr {
+    border-bottom: 1px solid #e5e7eb !important;
+  }
+
+  /* Charts — show as-is with background */
+  .recharts-wrapper {
+    page-break-inside: avoid;
+  }
+
+  /* Progress bars */
+  .bg-bg-primary.rounded-full {
+    background: #f3f4f6 !important;
+  }
+
+  /* Layout: remove max-width for full page use */
+  .max-w-\[1600px\] {
+    max-width: 100% !important;
+  }
+
+  /* Page margins */
+  @page {
+    margin: 15mm;
+    size: A4 landscape;
+  }
+
+  /* Prevent page breaks inside important sections */
+  .card,
+  .debt-item,
+  .recharts-wrapper {
+    page-break-inside: avoid;
+  }
+
+  /* Add page breaks before major sections */
+  .card.mx-4.mb-10 {
+    page-break-before: auto;
+  }
+
+  /* Hide share & export sections in print */
+  .card:has(h2:is(:last-of-type)) {
+    /* keep visible */
+  }
+}
