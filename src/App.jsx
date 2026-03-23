@@ -1,17 +1,4 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import Header from './components/Header';
-import SummaryBar from './components/SummaryBar';
-import DebtInputPanel from './components/DebtInputPanel';
-import StrategyToggle from './components/StrategyToggle';
-import MotivationStats from './components/MotivationStats';
-import PayoffTimeline from './components/PayoffTimeline';
-import FIREPanel from './components/FIREPanel';
-import CashFlowBreakdown from './components/CashFlowBreakdown';
-import PayoffSchedule from './components/PayoffSchedule';
-import ExportButtons from './components/ExportButtons';
-import ShareSection from './components/ShareSection';
-import Footer from './components/Footer';
-import HelpPage from './components/HelpPage';
 import { CurrencyProvider } from './context/CurrencyContext';
 import {
   DEFAULT_DEBTS,
@@ -20,6 +7,15 @@ import {
   calculateMinimumOnlyPayoff,
   buildFIREComparison,
 } from './utils/calculations';
+
+// Hub
+import AtlasHubPage from './components/hub/AtlasHubPage';
+
+// BurnDown app
+import BurnDownLayout from './components/burndown/BurnDownLayout';
+
+// Shared
+import ComingSoonPage from './components/shared/ComingSoonPage';
 
 const STORAGE_KEY = 'burndown-state';
 
@@ -50,12 +46,20 @@ function loadState() {
 
 function App() {
   const initial = useRef(loadState());
+
+  // BurnDown data state
   const [debts, setDebts] = useState(initial.current.debts);
   const [extraPayment, setExtraPayment] = useState(initial.current.extraPayment);
   const [strategy, setStrategy] = useState(initial.current.strategy);
   const [fireInputs, setFireInputs] = useState(initial.current.fireInputs);
   const [currency, setCurrency] = useState(initial.current.currency);
-  const [currentPage, setCurrentPage] = useState('dashboard');
+
+  // Navigation state
+  const [currentApp, setCurrentApp] = useState(null); // null = Atlas hub
+  const [currentPage, setCurrentPage] = useState('hub');
+
+  // Focus management ref
+  const focusRef = useRef(null);
 
   // Debounced save to localStorage
   const saveTimerRef = useRef(null);
@@ -63,17 +67,48 @@ function App() {
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        debts,
-        extraPayment,
-        strategy,
-        fireInputs,
-        currency,
+        debts, extraPayment, strategy, fireInputs, currency,
       }));
     }, 300);
     return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current); };
   }, [debts, extraPayment, strategy, fireInputs, currency]);
 
-  // Calculate payoff schedules (debounced via useMemo is fine since inputs drive it)
+  // Move focus to new page root on navigation
+  useEffect(() => {
+    const id = setTimeout(() => focusRef.current?.focus(), 80);
+    return () => clearTimeout(id);
+  }, [currentApp, currentPage]);
+
+  // Escape key returns to hub from any app
+  useEffect(() => {
+    function handleKey(e) {
+      if (e.key === 'Escape' && currentApp !== null) {
+        navigateToHub();
+      }
+    }
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [currentApp]);
+
+  // ── Navigation helpers ──────────────────────────────────────
+  function navigateToApp(appId) {
+    setCurrentApp(appId);
+    setCurrentPage(appId === 'burndown' ? 'dashboard' : 'coming-soon');
+    window.scrollTo(0, 0);
+  }
+
+  function navigateToHub() {
+    setCurrentApp(null);
+    setCurrentPage('hub');
+    window.scrollTo(0, 0);
+  }
+
+  function navigateToBurnDownPage(page) {
+    setCurrentPage(page);
+    window.scrollTo(0, 0);
+  }
+
+  // ── BurnDown calculations ───────────────────────────────────
   const snowballResult = useMemo(
     () => calculatePayoffSchedule(debts, extraPayment, 'snowball'),
     [debts, extraPayment]
@@ -96,104 +131,58 @@ function App() {
     [debts, extraPayment, strategy, fireInputs]
   );
 
+  // ── Render ──────────────────────────────────────────────────
   return (
-    <CurrencyProvider currency={currency} setCurrency={setCurrency}>
     <div className="min-h-screen bg-bg-primary relative">
-      {/* Ambient background glow */}
+      {/* Ambient background orbs */}
       <div className="bg-scene" aria-hidden="true">
         <div className="bg-orb bg-orb-1" />
         <div className="bg-orb bg-orb-2" />
         <div className="bg-orb bg-orb-3" />
       </div>
-      <div className="max-w-[1600px] mx-auto relative z-10" data-print-root>
-        <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
 
-        {currentPage === 'help' ? (
-          <HelpPage onBack={() => { setCurrentPage('dashboard'); window.scrollTo(0, 0); }} />
-        ) : (
-        <>
+      <div className="max-w-[1600px] mx-auto relative z-10">
 
-        <SummaryBar
-          debts={debts}
-          payoffResult={activeResult}
-          minimumOnlyResult={minimumOnlyResult}
-        />
-
-        {/* Main Grid: Debt Input | Motivation Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mx-4 mb-10">
-          <div className="md:col-span-3">
-            <DebtInputPanel
-              debts={debts}
-              setDebts={setDebts}
-              extraPayment={extraPayment}
-              setExtraPayment={setExtraPayment}
-            />
-          </div>
-          <div className="md:col-span-2">
-            <MotivationStats
-              debts={debts}
-              payoffResult={activeResult}
-              minimumOnlyResult={minimumOnlyResult}
-              extraPayment={extraPayment}
-              fireInputs={fireInputs}
-              fireComparison={fireComparison}
-            />
-          </div>
-        </div>
-
-        {/* Strategy Toggle — full width */}
-        <div className="mx-4 mb-10">
-          <StrategyToggle
-            strategy={strategy}
-            setStrategy={setStrategy}
-            snowballResult={snowballResult}
-            avalancheResult={avalancheResult}
+        {/* ── Atlas Hub ── */}
+        {currentApp === null && (
+          <AtlasHubPage
+            onLaunchApp={navigateToApp}
+            focusRef={focusRef}
           />
-        </div>
-
-        {/* Hero Chart */}
-        <PayoffTimeline debts={debts} payoffResult={activeResult} />
-
-        {/* Cash Flow */}
-        <CashFlowBreakdown
-          debts={debts}
-          extraPayment={extraPayment}
-          fireInputs={fireInputs}
-          setFireInputs={setFireInputs}
-        />
-
-        {/* FIRE Integration */}
-        <FIREPanel
-          fireInputs={fireInputs}
-          setFireInputs={setFireInputs}
-          fireComparison={fireComparison}
-          debts={debts}
-          payoffResult={activeResult}
-        />
-
-        {/* Payoff Schedule Table */}
-        <PayoffSchedule debts={debts} payoffResult={activeResult} />
-
-        {/* Export Report */}
-        <ExportButtons
-          debts={debts}
-          payoffResult={activeResult}
-          minimumOnlyResult={minimumOnlyResult}
-          extraPayment={extraPayment}
-          strategy={strategy}
-          fireInputs={fireInputs}
-          fireComparison={fireComparison}
-        />
-
-        {/* Share */}
-        <ShareSection />
-
-        <Footer />
-        </>
         )}
+
+        {/* ── BurnDown App ── */}
+        {currentApp === 'burndown' && (
+          <CurrencyProvider currency={currency} setCurrency={setCurrency}>
+            <BurnDownLayout
+              debts={debts} setDebts={setDebts}
+              extraPayment={extraPayment} setExtraPayment={setExtraPayment}
+              strategy={strategy} setStrategy={setStrategy}
+              fireInputs={fireInputs} setFireInputs={setFireInputs}
+              snowballResult={snowballResult}
+              avalancheResult={avalancheResult}
+              minimumOnlyResult={minimumOnlyResult}
+              activeResult={activeResult}
+              fireComparison={fireComparison}
+              currentPage={currentPage}
+              onNavigatePage={navigateToBurnDownPage}
+              onBackToHub={navigateToHub}
+              focusRef={focusRef}
+            />
+          </CurrencyProvider>
+        )}
+
+        {/* ── Coming Soon (Portfolio & Compound) ── */}
+        {(currentApp === 'portfolio' || currentApp === 'compound') && (
+          <ComingSoonPage
+            appId={currentApp}
+            onBackToHub={navigateToHub}
+            focusRef={focusRef}
+          />
+        )}
+
       </div>
     </div>
-    </CurrencyProvider>
   );
 }
 

@@ -511,3 +511,72 @@ input[type="number"] {
     /* keep visible */
   }
 }
+
+/* ══════════════════════════════════════════════
+   ATLAS HEALTH HUB — Design tokens & utilities
+   ══════════════════════════════════════════════ */
+
+/* Atlas gradient text (purple → teal) */
+.atlas-text {
+  background: linear-gradient(135deg, #8b7cf7, #2DD4BF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Atlas ambient glow for the hub hero */
+.atlas-glow {
+  box-shadow: 0 0 60px rgba(139, 124, 247, 0.10), 0 0 120px rgba(45, 212, 191, 0.05);
+}
+
+/* Per-app card hover accents */
+.card-accent-fire {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+.card-accent-fire:hover {
+  border-color: rgba(255, 107, 53, 0.45) !important;
+  box-shadow: 0 12px 48px rgba(255, 107, 53, 0.15), 0 0 0 1px rgba(255, 107, 53, 0.08);
+  transform: translateY(-4px);
+}
+
+.card-accent-teal {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.card-accent-teal:hover {
+  border-color: rgba(45, 212, 191, 0.30) !important;
+  box-shadow: 0 4px 24px rgba(45, 212, 191, 0.08);
+}
+
+.card-accent-purple {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.card-accent-purple:hover {
+  border-color: rgba(139, 124, 247, 0.35) !important;
+  box-shadow: 0 4px 24px rgba(139, 124, 247, 0.08);
+}
+
+/* Directional page transitions */
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(28px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-28px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.slide-in-right { animation: slideInRight 0.35s ease-out; }
+.slide-in-left  { animation: slideInLeft 0.35s ease-out; }
+
+/* Focus ring for all buttons */
+button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(139, 124, 247, 0.30);
+  border-radius: inherit;
+}
+
+/* Reduced motion — disable all decorative animations */
+@media (prefers-reduced-motion: reduce) {
+  .bg-orb { animation: none !important; }
+  .fade-in, .slide-in-right, .slide-in-left { animation: none !important; }
+  .pulse-glow { animation: none !important; }
+}
