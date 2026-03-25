@@ -3,17 +3,30 @@ import React from 'react';
 export default function HelpPage({ onBack }) {
   return (
     <div className="max-w-[900px] mx-auto px-4 py-10">
-      {/* Back button */}
-      <button
-        onClick={onBack}
-        className="flex items-center gap-2 text-purple hover:text-fire-start transition-colors mb-8 group"
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="19" y1="12" x2="5" y2="12"/>
-          <polyline points="12 19 5 12 12 5"/>
-        </svg>
-        <span className="text-sm font-medium group-hover:underline">Back to Dashboard</span>
-      </button>
+      {/* Back + Print buttons */}
+      <div className="flex items-center justify-between mb-8">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-2 text-purple hover:text-fire-start transition-colors group"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"/>
+            <polyline points="12 19 5 12 12 5"/>
+          </svg>
+          <span className="text-sm font-medium group-hover:underline">Back to Dashboard</span>
+        </button>
+        <button
+          onClick={() => window.print()}
+          className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-border-subtle bg-bg-card/60 text-text-secondary font-bold text-sm tracking-wide hover:bg-bg-card hover:text-text-primary transition-all backdrop-blur-xl"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="6 9 6 2 18 2 18 9"/>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+            <rect x="6" y="14" width="12" height="8"/>
+          </svg>
+          Print Help Guide
+        </button>
+      </div>
 
       <div className="card !p-8 md:!p-12 mb-8">
         <h1 className="font-heading text-3xl md:text-4xl font-bold text-text-primary mb-3">

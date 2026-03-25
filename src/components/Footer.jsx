@@ -13,7 +13,7 @@ export default function Footer() {
           Disclaimer
         </h3>
         <ul className="text-text-muted text-xs leading-relaxed space-y-2 list-disc list-inside">
-          <li>BurnDown is a planning tool for <strong className="text-text-secondary">educational purposes only</strong> and does not constitute financial advice.</li>
+          <li>Atlas Wealth is a planning tool for <strong className="text-text-secondary">educational purposes only</strong> and does not constitute financial advice.</li>
           <li>Results are estimates based on the inputs provided and assume consistent payments with no changes in interest rates. Actual payoff timelines may vary.</li>
           <li>The 4% rule and 25x multiplier for FI Number are simplified projections based on historical market returns and are not guaranteed.</li>
           <li>Always consult a qualified financial advisor for personalized guidance before making financial decisions.</li>

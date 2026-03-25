@@ -36,14 +36,16 @@
   --color-purple-dim: rgba(139, 124, 247, 0.12);
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-html {
-  scroll-behavior: smooth;
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 body {
@@ -413,6 +415,18 @@ input[type="number"] {
     background: none !important;
   }
 
+  .compound-text {
+    color: #7c3aed !important;
+    -webkit-text-fill-color: #7c3aed !important;
+    background: none !important;
+  }
+
+  .portfolio-text {
+    color: #0d9488 !important;
+    -webkit-text-fill-color: #0d9488 !important;
+    background: none !important;
+  }
+
   /* Muted text stays gray */
   .text-text-muted {
     color: #6b7280 !important;
@@ -572,6 +586,44 @@ button:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px rgba(139, 124, 247, 0.30);
   border-radius: inherit;
+}
+
+/* ══════════════════════════════════════════════
+   COMPOUND — Design tokens & utilities
+   ══════════════════════════════════════════════ */
+
+/* Compound purple gradient text */
+.compound-text {
+  background: linear-gradient(135deg, #8b7cf7, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Compound mode pill active state */
+.compound-mode-active {
+  background: linear-gradient(135deg, rgba(139, 124, 247, 0.12), rgba(167, 139, 250, 0.06));
+  border-color: rgba(139, 124, 247, 0.5) !important;
+  box-shadow: 0 0 25px rgba(139, 124, 247, 0.08);
+}
+
+/* ══════════════════════════════════════════════
+   PORTFOLIO — Design tokens & utilities
+   ══════════════════════════════════════════════ */
+
+/* Portfolio teal→green gradient text */
+.portfolio-text {
+  background: linear-gradient(135deg, #2DD4BF, #22C55E);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Portfolio mode pill active state */
+.portfolio-mode-active {
+  background: linear-gradient(135deg, rgba(45, 212, 191, 0.12), rgba(34, 197, 94, 0.06));
+  border-color: rgba(45, 212, 191, 0.5) !important;
+  box-shadow: 0 0 25px rgba(45, 212, 191, 0.08);
 }
 
 /* Reduced motion — disable all decorative animations */

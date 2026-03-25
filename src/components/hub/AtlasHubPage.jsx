@@ -1,6 +1,8 @@
 import React from 'react';
 import AtlasHubHeader from './AtlasHubHeader';
 import ProductCardsGrid from './ProductCardsGrid';
+import ShareSection from '../ShareSection';
+import Footer from '../Footer';
 import AtlasHubFooter from './AtlasHubFooter';
 
 function AtlasGlobeMark() {
@@ -25,7 +27,7 @@ export default function AtlasHubPage({ onLaunchApp, focusRef }) {
   return (
     <main
       role="main"
-      aria-label="Atlas Health financial tools hub"
+      aria-label="Atlas Wealth financial tools hub"
       className="fade-in min-h-screen flex flex-col"
     >
       <div tabIndex={-1} ref={focusRef} className="outline-none" />
@@ -36,7 +38,7 @@ export default function AtlasHubPage({ onLaunchApp, focusRef }) {
           <AtlasGlobeMark />
           <div className="text-left">
             <span className="atlas-text font-heading text-2xl font-bold tracking-tight leading-none block">Atlas</span>
-            <span className="text-text-muted text-sm tracking-widest uppercase leading-none">Health</span>
+            <span className="text-text-muted text-sm tracking-widest uppercase leading-none">Wealth</span>
           </div>
         </div>
         <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-tight mb-3">
@@ -50,9 +52,7 @@ export default function AtlasHubPage({ onLaunchApp, focusRef }) {
 
         {/* Stats counter row */}
         <p className="text-text-muted text-sm mb-6">
-          <span className="text-green font-semibold">1</span> tool live
-          <span className="mx-2 text-border-medium">·</span>
-          <span className="text-amber font-semibold">2</span> coming soon
+          <span className="text-green font-semibold">3</span> tools live
         </p>
       </div>
 
@@ -68,6 +68,8 @@ export default function AtlasHubPage({ onLaunchApp, focusRef }) {
         <ProductCardsGrid onLaunch={onLaunchApp} />
       </div>
 
+      <ShareSection />
+      <Footer />
       <AtlasHubFooter />
     </main>
   );

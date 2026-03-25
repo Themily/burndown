@@ -29,10 +29,10 @@ export default function AtlasHubFooter() {
         <div className="h-px bg-gradient-to-r from-transparent via-border-subtle to-transparent mb-3" />
 
         <p className="text-text-muted text-xs text-center leading-relaxed mb-1">
-          All Atlas Health tools run locally in your browser — your financial data never leaves your device.
+          All Atlas Wealth tools run locally in your browser — your financial data never leaves your device.
         </p>
         <p className="text-text-muted/50 text-xs text-center">
-          Atlas Health is an educational financial toolkit. Not financial advice.
+          Atlas Wealth is an educational financial toolkit. Not financial advice.
         </p>
       </div>
     </footer>

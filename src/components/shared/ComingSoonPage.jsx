@@ -95,7 +95,7 @@ export default function ComingSoonPage({ appId, onBackToHub, focusRef }) {
           onClick={onBackToHub}
           className="w-full py-3 rounded-xl text-sm font-bold border border-border-medium text-text-secondary hover:text-text-primary transition-colors"
         >
-          ← Back to Atlas Health
+          ← Back to Atlas Wealth
         </button>
       </div>
     </main>

@@ -117,6 +117,12 @@ export function exportPDF({ debts, payoffResult, minimumOnlyResult, extraPayment
   const white = [245, 245, 245];
   const muted = [161, 161, 170];
 
+  // Auto-paint dark background on every NEW page (fires before content is drawn)
+  doc.internal.events.subscribe('addPage', () => {
+    doc.setFillColor(...darkBg);
+    doc.rect(0, 0, pageWidth, doc.internal.pageSize.getHeight(), 'F');
+  });
+
   // ── Page 1 — Summary ──
   doc.setFillColor(...darkBg);
   doc.rect(0, 0, pageWidth, doc.internal.pageSize.getHeight(), 'F');
@@ -276,10 +282,7 @@ export function exportPDF({ debts, payoffResult, minimumOnlyResult, extraPayment
     alternateRowStyles: { fillColor: [30, 30, 34] },
     margin: { left: 8, right: 8 },
     willDrawPage: () => {
-      // Draw dark background BEFORE table content is rendered on each page
-      doc.setFillColor(...darkBg);
-      doc.rect(0, 0, pageWidth, pageHeight, 'F');
-      // Draw title only on the first schedule page
+      // Draw title only on the first schedule page (bg handled by addPage event)
       if (isFirstSchedulePage) {
         doc.setFontSize(12);
         doc.setTextColor(...amber);
@@ -287,7 +290,6 @@ export function exportPDF({ debts, payoffResult, minimumOnlyResult, extraPayment
         isFirstSchedulePage = false;
       }
     },
-    // No didDrawPage — it would paint over the rows that were just drawn
   });
 
   // Footer on every page
