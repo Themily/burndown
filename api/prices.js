@@ -1,7 +1,10 @@
 // Vercel Serverless Function — Market price proxy with 60s in-memory cache
-// Uses Finnhub for US stocks/ETFs and CoinGecko for cryptocurrencies (free, no key needed)
+// Uses Finnhub for US stocks/ETFs, CoinGecko for crypto, goldprice.org for gold spot
 const cache = new Map();
 const CACHE_TTL = 60000; // 60 seconds
+
+// Special symbols handled by dedicated free APIs (not Finnhub)
+const METALS = ['GOLD', 'SILVER'];
 
 // Known crypto symbols → CoinGecko IDs
 // Users can add these tickers to watchlists and get live prices
@@ -117,6 +120,63 @@ async function lookupCoinGeckoId(symbol) {
   return null;
 }
 
+// Fetch gold/silver spot price from goldprice.org (free, no key)
+async function fetchMetalPrice(symbol, now) {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
+    const response = await fetch('https://data-asg.goldprice.org/dbXRates/USD', {
+      signal: controller.signal,
+      headers: { 'User-Agent': 'AtlasWealth/1.0' },
+    });
+
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      console.error(`Gold price API error: HTTP ${response.status}`);
+      return null;
+    }
+
+    const data = await response.json();
+
+    // data.items[0] contains: { xauPrice, xagPrice, chgXau, chgXag, pcXau, pcXag, ... }
+    const item = data?.items?.[0];
+    if (!item) return null;
+
+    if (symbol === 'GOLD' && item.xauPrice) {
+      return {
+        price: item.xauPrice,
+        change: item.chgXau || 0,
+        changePercent: item.pcXau || 0,
+        high: null,
+        low: null,
+        open: item.xauPrice - (item.chgXau || 0),
+        prevClose: item.xauPrice - (item.chgXau || 0),
+        ts: now,
+      };
+    }
+
+    if (symbol === 'SILVER' && item.xagPrice) {
+      return {
+        price: item.xagPrice,
+        change: item.chgXag || 0,
+        changePercent: item.pcXag || 0,
+        high: null,
+        low: null,
+        open: item.xagPrice - (item.chgXag || 0),
+        prevClose: item.xagPrice - (item.chgXag || 0),
+        ts: now,
+      };
+    }
+
+    return null;
+  } catch (err) {
+    console.error(`Metal price fetch error for ${symbol}:`, err.message);
+    return null;
+  }
+}
+
 async function fetchCryptoPrice(symbol, coinGeckoId, now) {
   const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coinGeckoId}&vs_currencies=usd&include_24hr_change=true`;
   const response = await fetch(url);
@@ -206,8 +266,9 @@ export default async function handler(req, res) {
   const prices = {};
   const now = Date.now();
 
-  // Batch CoinGecko requests — group all crypto symbols into one API call
+  // Route symbols to the correct data source
   const cryptoSymbols = [];
+  const metalSymbols = [];
   const stockSymbols = [];
 
   for (const symbol of symbolList) {
@@ -218,10 +279,28 @@ export default async function handler(req, res) {
       continue;
     }
 
-    if (CRYPTO_MAP[symbol]) {
+    if (METALS.includes(symbol)) {
+      metalSymbols.push(symbol);
+    } else if (CRYPTO_MAP[symbol]) {
       cryptoSymbols.push({ symbol, geckoId: CRYPTO_MAP[symbol] });
     } else {
       stockSymbols.push(symbol);
+    }
+  }
+
+  // Fetch metal spot prices (gold, silver) from goldprice.org
+  if (metalSymbols.length > 0) {
+    // One API call returns both gold and silver
+    for (const symbol of metalSymbols) {
+      try {
+        const priceData = await fetchMetalPrice(symbol, now);
+        if (priceData) {
+          prices[symbol] = priceData;
+          cache.set(symbol, { data: priceData, ts: now });
+        }
+      } catch (err) {
+        console.error(`Metal fetch error for ${symbol}:`, err.message);
+      }
     }
   }
 

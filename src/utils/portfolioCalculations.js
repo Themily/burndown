@@ -19,7 +19,7 @@ export const MARKET_TICKERS = [
   { symbol: 'SPY',   label: 'SPY',   sublabel: 'S&P 500 ETF',     type: 'index' },
   { symbol: 'QQQ',   label: 'QQQ',   sublabel: 'NASDAQ-100 ETF',  type: 'index' },
   { symbol: 'BTC',   label: 'Bitcoin', sublabel: 'BTC/USD',         type: 'crypto' },
-  { symbol: 'GLD',   label: 'GLD',   sublabel: 'Gold ETF',        type: 'commodity' },
+  { symbol: 'GOLD',  label: 'Gold',  sublabel: 'XAU/USD Spot',    type: 'commodity' },
 ];
 
 // Historical return assumptions (annual mean, annual std dev)
