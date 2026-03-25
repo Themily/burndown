@@ -26,7 +26,7 @@ export default function BurnDownLayout({
   onBackToHub,
   focusRef,
 }) {
-  const hasPayoffResult = !!(activeResult && activeResult.totalMonths > 0);
+  const hasPayoffResult = !!(activeResult && activeResult.months > 0);
 
   return (
     <div className="slide-in-right" data-print-root>
