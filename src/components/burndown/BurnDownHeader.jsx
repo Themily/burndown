@@ -2,7 +2,13 @@ import React from 'react';
 import CurrencySelector from '../CurrencySelector';
 import BackToAtlasButton from '../shared/BackToAtlasButton';
 
-export default function BurnDownHeader({ currentPage = 'dashboard', onNavigatePage = () => {}, onBackToHub = () => {} }) {
+const PAGES = [
+  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'timeline', label: 'Timeline' },
+  { id: 'fire',     label: 'FIRE Plan' },
+];
+
+export default function BurnDownHeader({ currentPage = 'dashboard', onNavigatePage = () => {}, onBackToHub = () => {}, hasPayoffResult = false }) {
   return (
     <header className="pt-6 pb-16 px-4">
       {/* Top bar */}
@@ -20,13 +26,35 @@ export default function BurnDownHeader({ currentPage = 'dashboard', onNavigatePa
         </div>
 
         {/* Center nav pills */}
-        <nav className="hidden md:flex items-center bg-bg-card border border-border-subtle rounded-full px-1.5 py-1 backdrop-blur-xl">
-          <button
-            onClick={() => { onNavigatePage('dashboard'); window.scrollTo(0, 0); }}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${currentPage === 'dashboard' ? 'bg-bg-elevated text-text-primary' : 'text-text-muted hover:text-text-secondary'}`}
-          >Dashboard</button>
-          <span className="px-4 py-1.5 rounded-full text-text-muted text-sm cursor-default">Timeline</span>
-          <span className="px-4 py-1.5 rounded-full text-text-muted text-sm cursor-default">FIRE Plan</span>
+        <nav className="hidden md:flex items-center bg-bg-card border border-border-subtle rounded-full px-2 py-1.5 gap-1 backdrop-blur-xl">
+          {PAGES.map((page) => {
+            const isActive = currentPage === page.id;
+            // Timeline & FIRE Plan require a valid payoff result
+            const isDisabled = (page.id === 'timeline' || page.id === 'fire') && !hasPayoffResult;
+
+            return (
+              <button
+                key={page.id}
+                onClick={() => {
+                  if (!isDisabled) {
+                    onNavigatePage(page.id);
+                    window.scrollTo(0, 0);
+                  }
+                }}
+                disabled={isDisabled}
+                className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all ${
+                  isActive
+                    ? 'bg-bg-elevated text-text-primary shadow-sm'
+                    : isDisabled
+                      ? 'text-text-muted/40 cursor-not-allowed'
+                      : 'text-text-muted hover:text-text-secondary hover:bg-bg-elevated/50'
+                }`}
+                title={isDisabled ? 'Add debts and extra payment to unlock' : ''}
+              >
+                {page.label}
+              </button>
+            );
+          })}
         </nav>
 
         <CurrencySelector />
