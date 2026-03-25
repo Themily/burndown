@@ -120,27 +120,41 @@ async function lookupCoinGeckoId(symbol) {
   return null;
 }
 
-// Fetch gold/silver spot price from goldprice.org (free, no key)
-async function fetchMetalPrice(symbol, now) {
+// Fetch gold/silver spot price — tries multiple free sources
+async function fetchMetalPrice(symbol, apiKey, now) {
+  // Strategy 1: Try goldprice.org
+  const goldpriceResult = await tryGoldPriceOrg(symbol, now);
+  if (goldpriceResult) return goldpriceResult;
+
+  // Strategy 2: Try gold-api.com free endpoint
+  const goldApiResult = await tryGoldApi(symbol, now);
+  if (goldApiResult) return goldApiResult;
+
+  // Strategy 3: Derive from ETF via Finnhub (GLD for gold, SLV for silver)
+  const etfResult = await tryMetalFromETF(symbol, apiKey, now);
+  if (etfResult) return etfResult;
+
+  return null;
+}
+
+async function tryGoldPriceOrg(symbol, now) {
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
+    const timeout = setTimeout(() => controller.abort(), 4000);
 
     const response = await fetch('https://data-asg.goldprice.org/dbXRates/USD', {
       signal: controller.signal,
-      headers: { 'User-Agent': 'AtlasWealth/1.0' },
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; AtlasWealth/1.0)',
+        'Accept': 'application/json',
+        'Referer': 'https://goldprice.org/',
+      },
     });
 
     clearTimeout(timeout);
-
-    if (!response.ok) {
-      console.error(`Gold price API error: HTTP ${response.status}`);
-      return null;
-    }
+    if (!response.ok) return null;
 
     const data = await response.json();
-
-    // data.items[0] contains: { xauPrice, xagPrice, chgXau, chgXag, pcXau, pcXag, ... }
     const item = data?.items?.[0];
     if (!item) return null;
 
@@ -149,30 +163,95 @@ async function fetchMetalPrice(symbol, now) {
         price: item.xauPrice,
         change: item.chgXau || 0,
         changePercent: item.pcXau || 0,
-        high: null,
-        low: null,
+        high: null, low: null,
         open: item.xauPrice - (item.chgXau || 0),
         prevClose: item.xauPrice - (item.chgXau || 0),
         ts: now,
       };
     }
-
     if (symbol === 'SILVER' && item.xagPrice) {
       return {
         price: item.xagPrice,
         change: item.chgXag || 0,
         changePercent: item.pcXag || 0,
-        high: null,
-        low: null,
+        high: null, low: null,
         open: item.xagPrice - (item.chgXag || 0),
         prevClose: item.xagPrice - (item.chgXag || 0),
         ts: now,
       };
     }
-
     return null;
   } catch (err) {
-    console.error(`Metal price fetch error for ${symbol}:`, err.message);
+    console.error('goldprice.org failed:', err.message);
+    return null;
+  }
+}
+
+async function tryGoldApi(symbol, now) {
+  try {
+    // Free public endpoint — no key needed, returns spot prices
+    const metalCode = symbol === 'GOLD' ? 'XAU' : symbol === 'SILVER' ? 'XAG' : null;
+    if (!metalCode) return null;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000);
+
+    const response = await fetch(`https://api.gold-api.com/price/${metalCode}`, {
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    if (data && typeof data.price === 'number' && data.price > 0) {
+      return {
+        price: data.price,
+        change: data.ch || 0,
+        changePercent: data.chp || 0,
+        high: data.high_price || null,
+        low: data.low_price || null,
+        open: data.open_price || null,
+        prevClose: data.prev_close_price || data.price - (data.ch || 0),
+        ts: now,
+      };
+    }
+    return null;
+  } catch (err) {
+    console.error('gold-api.com failed:', err.message);
+    return null;
+  }
+}
+
+async function tryMetalFromETF(symbol, apiKey, now) {
+  try {
+    // GLD holds ~0.09295 oz of gold per share; SLV holds ~0.9216 oz silver
+    const etfSymbol = symbol === 'GOLD' ? 'GLD' : symbol === 'SILVER' ? 'SLV' : null;
+    const multiplier = symbol === 'GOLD' ? (1 / 0.09295) : symbol === 'SILVER' ? (1 / 0.9216) : null;
+    if (!etfSymbol || !multiplier || !apiKey) return null;
+
+    const url = `https://finnhub.io/api/v1/quote?symbol=${etfSymbol}&token=${apiKey}`;
+    const response = await fetch(url);
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    if (data && typeof data.c === 'number' && data.c > 0) {
+      const spotPrice = Math.round(data.c * multiplier * 100) / 100;
+      const spotChange = Math.round((data.d || 0) * multiplier * 100) / 100;
+      return {
+        price: spotPrice,
+        change: spotChange,
+        changePercent: data.dp || 0,
+        high: data.h ? Math.round(data.h * multiplier * 100) / 100 : null,
+        low: data.l ? Math.round(data.l * multiplier * 100) / 100 : null,
+        open: data.o ? Math.round(data.o * multiplier * 100) / 100 : null,
+        prevClose: data.pc ? Math.round(data.pc * multiplier * 100) / 100 : null,
+        ts: now,
+      };
+    }
+    return null;
+  } catch (err) {
+    console.error('ETF metal derivation failed:', err.message);
     return null;
   }
 }
@@ -293,7 +372,7 @@ export default async function handler(req, res) {
     // One API call returns both gold and silver
     for (const symbol of metalSymbols) {
       try {
-        const priceData = await fetchMetalPrice(symbol, now);
+        const priceData = await fetchMetalPrice(symbol, apiKey, now);
         if (priceData) {
           prices[symbol] = priceData;
           cache.set(symbol, { data: priceData, ts: now });
