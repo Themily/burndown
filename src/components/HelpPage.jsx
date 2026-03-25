@@ -38,10 +38,56 @@ export default function HelpPage({ onBack }) {
         </p>
       </div>
 
+      {/* Navigation Tabs Section */}
+      <section id="navigation-tabs" className="card !p-6 md:!p-8 mb-6">
+        <h2 className="text-xl font-bold text-text-primary mb-4 flex items-center gap-2">
+          <span className="text-2xl">🗂️</span> Getting Started — The Three Tabs
+        </h2>
+        <p className="text-text-secondary leading-relaxed mb-5">
+          BurnDown is organised into three tabs at the top of the page: <strong className="text-text-primary">Dashboard</strong>, <strong className="text-text-primary">Timeline</strong>, and <strong className="text-text-primary">FIRE Plan</strong>. Each tab unlocks as you enter your data.
+        </p>
+        <div className="space-y-4">
+          {/* Dashboard */}
+          <div className="bg-bg-elevated border border-border-subtle rounded-xl p-4">
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-lg">📊</span>
+              <strong className="text-text-primary">Dashboard</strong>
+              <span className="text-[10px] bg-green/15 text-green border border-green/30 rounded-full px-2 py-0.5 font-medium">Always available</span>
+            </div>
+            <p className="text-text-secondary text-sm leading-relaxed">Your main control panel. Add your debts, set your extra monthly payment, choose Snowball or Avalanche strategy, and view your payoff results. <strong className="text-text-primary">Start here.</strong></p>
+          </div>
+          {/* Timeline */}
+          <div className="bg-bg-elevated border border-border-subtle rounded-xl p-4">
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-lg">📅</span>
+              <strong className="text-text-primary">Timeline</strong>
+              <span className="text-[10px] bg-purple/15 text-purple border border-purple/30 rounded-full px-2 py-0.5 font-medium">Unlocks after debts entered</span>
+            </div>
+            <p className="text-text-secondary text-sm leading-relaxed mb-2">A visual month-by-month breakdown showing when each debt gets paid off. You can see balances declining over time and exactly which month each debt disappears.</p>
+            <div className="bg-bg-card rounded-lg px-3 py-2 text-xs text-text-muted">
+              ✅ <strong className="text-text-secondary">To unlock:</strong> Add at least one debt with balance, interest rate, and minimum payment on the Dashboard.
+            </div>
+          </div>
+          {/* FIRE Plan */}
+          <div className="bg-bg-elevated border border-border-subtle rounded-xl p-4">
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-lg">🔥</span>
+              <strong className="text-text-primary">FIRE Plan</strong>
+              <span className="text-[10px] bg-fire-start/15 text-fire-start border border-fire-start/30 rounded-full px-2 py-0.5 font-medium">Unlocks after debts entered</span>
+            </div>
+            <p className="text-text-secondary text-sm leading-relaxed mb-2">Shows how paying off your debts leads to financial independence. Once your debts are cleared, your freed-up payments get redirected to investments — the app projects when you'll reach your FI Number and retire early.</p>
+            <div className="bg-bg-card rounded-lg px-3 py-2 text-xs text-text-muted">
+              ✅ <strong className="text-text-secondary">To unlock:</strong> Same as Timeline — add your debts on the Dashboard. Both tabs unlock together automatically.
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Table of Contents */}
       <div className="card !p-6 md:!p-8 mb-8">
         <h2 className="text-lg font-bold text-text-primary mb-4">📑 Table of Contents</h2>
         <ol className="space-y-2 text-text-secondary text-sm list-decimal list-inside">
+          <li><a href="#navigation-tabs" className="text-purple hover:underline">Getting Started — The Three Tabs</a></li>
           <li><a href="#what-is-burndown" className="text-purple hover:underline">What is BurnDown?</a></li>
           <li><a href="#how-interest-works" className="text-purple hover:underline">How Interest Works</a></li>
           <li><a href="#minimum-payments" className="text-purple hover:underline">Why Minimum Payments Cost You More</a></li>
