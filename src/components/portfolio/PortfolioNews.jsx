@@ -1,5 +1,50 @@
 import React, { useState } from 'react';
 
+// Fallback shown when there's no image or the image is a logo
+function NewsImageFallback() {
+  return (
+    <div className="w-full h-36 bg-gradient-to-br from-teal/10 to-green/5 flex items-center justify-center">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-teal/40">
+        <path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1m2 13a2 2 0 0 1-2-2V7m2 13a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2m-4-3H9M7 16h6M7 12h10"/>
+      </svg>
+    </div>
+  );
+}
+
+// Smart image — hides itself if it looks like a logo (square + small)
+function ArticleImage({ src }) {
+  const [hidden, setHidden] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+
+  const handleLoad = (e) => {
+    const img = e.target;
+    const ratio = img.naturalWidth / img.naturalHeight;
+    const isSquarish = ratio > 0.6 && ratio < 1.6;
+    const isSmall = img.naturalWidth < 600;
+    // Logo heuristic: squarish AND small resolution
+    if (isSquarish && isSmall) {
+      setHidden(true);
+    } else {
+      setLoaded(true);
+    }
+  };
+
+  if (hidden) return <NewsImageFallback />;
+
+  return (
+    <div className="relative w-full h-36 bg-bg-card overflow-hidden">
+      {!loaded && <div className="absolute inset-0 bg-bg-card animate-pulse" />}
+      <img
+        src={src}
+        alt=""
+        className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+        onLoad={handleLoad}
+        onError={() => setHidden(true)}
+      />
+    </div>
+  );
+}
+
 export default function PortfolioNews({ articles = [], loading = false, holdings = [] }) {
   const [filter, setFilter] = useState('all'); // 'all' | 'holdings'
 
@@ -79,25 +124,11 @@ export default function PortfolioNews({ articles = [], loading = false, holdings
               rel="noopener noreferrer"
               className="flex flex-col bg-bg-elevated border border-border-subtle rounded-xl overflow-hidden hover:border-border-medium hover:bg-bg-card-hover transition-all group"
             >
-              {/* Article image */}
-              {article.image ? (
-                <div className="relative w-full h-36 bg-bg-card overflow-hidden">
-                  <img
-                    src={article.image}
-                    alt=""
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                      e.target.parentElement.style.display = 'none';
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className="w-full h-20 bg-gradient-to-br from-teal/10 to-green/5 flex items-center justify-center">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-teal/40">
-                    <path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1m2 13a2 2 0 0 1-2-2V7m2 13a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2m-4-3H9M7 16h6M7 12h10"/>
-                  </svg>
-                </div>
-              )}
+              {/* Article image — smart: shows fallback if logo detected */}
+              {article.image
+                ? <ArticleImage src={article.image} />
+                : <NewsImageFallback />
+              }
 
               {/* Article content */}
               <div className="flex flex-col flex-1 p-4">
