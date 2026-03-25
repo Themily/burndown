@@ -16,10 +16,10 @@ export const ASSET_CLASSES = [
 ];
 
 export const MARKET_TICKERS = [
-  { symbol: 'SPY',              label: 'S&P 500', type: 'index' },
-  { symbol: 'QQQ',              label: 'NASDAQ',   type: 'index' },
-  { symbol: 'BINANCE:BTCUSDT',  label: 'Bitcoin',  type: 'crypto' },
-  { symbol: 'OANDA:XAUUSD',     label: 'Gold',     type: 'commodity' },
+  { symbol: 'SPY',              label: 'SPY',      sublabel: 'S&P 500 ETF',   type: 'index' },
+  { symbol: 'QQQ',              label: 'QQQ',      sublabel: 'NASDAQ-100 ETF', type: 'index' },
+  { symbol: 'BINANCE:BTCUSDT',  label: 'Bitcoin',  sublabel: 'BTC/USD',       type: 'crypto' },
+  { symbol: 'OANDA:XAUUSD',     label: 'Gold',     sublabel: 'XAU/USD',       type: 'commodity' },
 ];
 
 // Historical return assumptions (annual mean, annual std dev)

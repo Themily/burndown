@@ -44,7 +44,12 @@ export default function PortfolioLivePrices({ prices = {}, loading = false, last
               className="bg-bg-elevated border border-border-subtle rounded-xl p-4 hover:border-border-medium transition-all"
             >
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-text-muted text-xs font-medium">{ticker.label}</span>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-text-secondary text-sm font-semibold">{ticker.label}</span>
+                  {ticker.sublabel && (
+                    <span className="text-text-muted text-[10px]">{ticker.sublabel}</span>
+                  )}
+                </div>
                 {data && (
                   <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${
                     isPositive
