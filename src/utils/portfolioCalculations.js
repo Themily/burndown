@@ -18,7 +18,7 @@ export const ASSET_CLASSES = [
 export const MARKET_TICKERS = [
   { symbol: 'SPY',   label: 'SPY',   sublabel: 'S&P 500 ETF',     type: 'index' },
   { symbol: 'QQQ',   label: 'QQQ',   sublabel: 'NASDAQ-100 ETF',  type: 'index' },
-  { symbol: 'IBIT',  label: 'IBIT',  sublabel: 'Bitcoin ETF',     type: 'crypto' },
+  { symbol: 'BTC',   label: 'Bitcoin', sublabel: 'BTC/USD',         type: 'crypto' },
   { symbol: 'GLD',   label: 'GLD',   sublabel: 'Gold ETF',        type: 'commodity' },
 ];
 
