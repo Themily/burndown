@@ -208,7 +208,6 @@ export default function PortfolioLayout({
               <PortfolioNews
                 articles={articles}
                 loading={newsLoading}
-                holdings={holdings}
               />
             </>
           )}

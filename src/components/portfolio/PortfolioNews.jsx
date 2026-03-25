@@ -45,47 +45,8 @@ function ArticleImage({ src }) {
   );
 }
 
-export default function PortfolioNews({ articles = [], loading = false, holdings = [] }) {
-  const [filter, setFilter] = useState('all'); // 'all' | 'holdings'
-
-  // Build search terms from holdings: tickers + name keywords
-  const holdingSearchTerms = holdings
-    .filter(h => h.ticker || h.name)
-    .flatMap(h => {
-      const terms = [];
-      // Add ticker (e.g. "AAPL", "VOO")
-      if (h.ticker) terms.push(h.ticker.toUpperCase());
-      // Add full name (e.g. "VANGUARD S&P 500 ETF")
-      if (h.name) {
-        const upper = h.name.toUpperCase();
-        terms.push(upper);
-        // Also extract meaningful keywords (skip short/common words)
-        const SKIP = new Set(['THE','INC','CORP','LTD','LLC','CO','GROUP','CLASS','ETF','FUND','TRUST','SHARES','&','A','B','C','OF','AND','IN','FOR']);
-        const words = upper.split(/[\s,.\-()]+/).filter(w => w.length >= 3 && !SKIP.has(w));
-        words.forEach(w => terms.push(w));
-      }
-      return terms;
-    })
-    .filter(Boolean);
-
-  // Deduplicate
-  const uniqueTerms = [...new Set(holdingSearchTerms)];
-
-  const filteredArticles = filter === 'holdings' && uniqueTerms.length > 0
-    ? articles.filter(a => {
-        const headline = (a.headline || '').toUpperCase();
-        const summary = (a.summary || '').toUpperCase();
-        const related = (a.related || '').toUpperCase();
-
-        return uniqueTerms.some(term =>
-          headline.includes(term) ||
-          summary.includes(term) ||
-          related.includes(term)
-        );
-      })
-    : articles;
-
-  const visible = filteredArticles.slice(0, 12);
+export default function PortfolioNews({ articles = [], loading = false }) {
+  const visible = articles.slice(0, 12);
 
   const timeAgo = (timestamp) => {
     const now = Date.now();
@@ -102,24 +63,6 @@ export default function PortfolioNews({ articles = [], loading = false, holdings
         <h2 className="section-accent font-heading text-lg font-bold text-text-primary">
           Financial News
         </h2>
-        <div className="flex items-center bg-bg-elevated border border-border-subtle rounded-full px-1 py-0.5">
-          <button
-            onClick={() => setFilter('all')}
-            className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-              filter === 'all' ? 'bg-teal/15 text-teal' : 'text-text-muted hover:text-text-secondary'
-            }`}
-          >
-            All News
-          </button>
-          <button
-            onClick={() => setFilter('holdings')}
-            className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-              filter === 'holdings' ? 'bg-teal/15 text-teal' : 'text-text-muted hover:text-text-secondary'
-            }`}
-          >
-            My Holdings
-          </button>
-        </div>
       </div>
 
       {loading ? (
@@ -136,9 +79,7 @@ export default function PortfolioNews({ articles = [], loading = false, holdings
         </div>
       ) : visible.length === 0 ? (
         <p className="text-text-muted text-sm text-center py-8">
-          {filter === 'holdings'
-            ? 'No news matching your holdings. Try "All News".'
-            : 'News will appear when deployed with Finnhub API key.'}
+          News will appear when deployed with Finnhub API key.
         </p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
