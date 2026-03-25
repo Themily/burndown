@@ -46,7 +46,8 @@ function ArticleImage({ src }) {
 }
 
 export default function PortfolioNews({ articles = [], loading = false }) {
-  const visible = articles.slice(0, 12);
+  const [showAll, setShowAll] = useState(false);
+  const visible = showAll ? articles.slice(0, 30) : articles.slice(0, 12);
 
   const timeAgo = (timestamp) => {
     const now = Date.now();
@@ -60,9 +61,16 @@ export default function PortfolioNews({ articles = [], loading = false }) {
   return (
     <div className="card mx-4 mb-10">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="section-accent font-heading text-lg font-bold text-text-primary">
-          Financial News
-        </h2>
+        <div className="flex items-center gap-3">
+          <h2 className="section-accent font-heading text-lg font-bold text-text-primary">
+            Financial News
+          </h2>
+          {articles.length > 0 && (
+            <span className="text-[10px] text-text-muted bg-bg-elevated border border-border-subtle rounded-full px-2 py-0.5">
+              {articles.length} articles
+            </span>
+          )}
+        </div>
       </div>
 
       {loading ? (
@@ -114,6 +122,18 @@ export default function PortfolioNews({ articles = [], loading = false }) {
               </div>
             </a>
           ))}
+        </div>
+      )}
+
+      {/* Show More / Show Less */}
+      {!loading && articles.length > 12 && (
+        <div className="text-center mt-6">
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="px-5 py-2 rounded-full border border-border-subtle bg-bg-elevated text-text-secondary text-xs font-medium hover:text-text-primary hover:border-border-medium transition-all"
+          >
+            {showAll ? 'Show Less' : `Show More (${articles.length - 12} more)`}
+          </button>
         </div>
       )}
     </div>
