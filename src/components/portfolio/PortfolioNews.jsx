@@ -48,15 +48,41 @@ function ArticleImage({ src }) {
 export default function PortfolioNews({ articles = [], loading = false, holdings = [] }) {
   const [filter, setFilter] = useState('all'); // 'all' | 'holdings'
 
-  const holdingTickers = holdings.map(h => h.ticker?.toUpperCase()).filter(Boolean);
+  // Build search terms from holdings: tickers + name keywords
+  const holdingSearchTerms = holdings
+    .filter(h => h.ticker || h.name)
+    .flatMap(h => {
+      const terms = [];
+      // Add ticker (e.g. "AAPL", "VOO")
+      if (h.ticker) terms.push(h.ticker.toUpperCase());
+      // Add full name (e.g. "VANGUARD S&P 500 ETF")
+      if (h.name) {
+        const upper = h.name.toUpperCase();
+        terms.push(upper);
+        // Also extract meaningful keywords (skip short/common words)
+        const SKIP = new Set(['THE','INC','CORP','LTD','LLC','CO','GROUP','CLASS','ETF','FUND','TRUST','SHARES','&','A','B','C','OF','AND','IN','FOR']);
+        const words = upper.split(/[\s,.\-()]+/).filter(w => w.length >= 3 && !SKIP.has(w));
+        words.forEach(w => terms.push(w));
+      }
+      return terms;
+    })
+    .filter(Boolean);
 
-  const filteredArticles = filter === 'holdings' && holdingTickers.length > 0
-    ? articles.filter(a =>
-        holdingTickers.some(t =>
-          a.headline?.toUpperCase().includes(t) ||
-          a.summary?.toUpperCase().includes(t)
-        )
-      )
+  // Deduplicate
+  const uniqueTerms = [...new Set(holdingSearchTerms)];
+
+  const filteredArticles = filter === 'holdings' && uniqueTerms.length > 0
+    ? articles.filter(a => {
+        const headline = (a.headline || '').toUpperCase();
+        const summary = (a.summary || '').toUpperCase();
+        const related = (a.related || '').toUpperCase();
+
+        return uniqueTerms.some(term =>
+          headline.includes(term) ||
+          summary.includes(term) ||
+          related.includes(term)
+        );
+      })
     : articles;
 
   const visible = filteredArticles.slice(0, 12);
