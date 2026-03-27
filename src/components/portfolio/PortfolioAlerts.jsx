@@ -7,13 +7,26 @@ export default function PortfolioAlerts({ alerts = [], setAlerts, alertEmail = '
   const [newCondition, setNewCondition] = useState('above');
   const [newPrice, setNewPrice] = useState('');
 
+  const parsedPrice = parseFloat(newPrice);
+  const priceValid = newPrice !== '' && !isNaN(parsedPrice) && parsedPrice > 0;
+
+  // Duplicate: same ticker + condition + price already exists (triggered or not)
+  const isDuplicate = priceValid && newTicker.trim() &&
+    alerts.some(a =>
+      a.ticker === newTicker.trim().toUpperCase() &&
+      a.condition === newCondition &&
+      a.price === parsedPrice
+    );
+
+  const canAdd = newTicker.trim() && priceValid && !isDuplicate;
+
   const handleAddAlert = () => {
-    if (!newTicker.trim() || !newPrice) return;
+    if (!canAdd) return;
     const alert = {
       id: `alert-${Date.now()}`,
       ticker: newTicker.trim().toUpperCase(),
       condition: newCondition,
-      price: parseFloat(newPrice),
+      price: parsedPrice,
       triggered: false,
       createdAt: Date.now(),
     };
@@ -73,18 +86,27 @@ export default function PortfolioAlerts({ alerts = [], setAlerts, alertEmail = '
             <option value="above">Price Goes Above</option>
             <option value="below">Price Goes Below</option>
           </select>
-          <input
-            type="number"
-            value={newPrice}
-            onChange={(e) => setNewPrice(e.target.value)}
-            placeholder={`Price (${symbol})`}
-            min="0"
-            step="0.01"
-            className="!text-sm"
-          />
+          <div>
+            <input
+              type="number"
+              value={newPrice}
+              onChange={(e) => setNewPrice(e.target.value)}
+              onKeyDown={(e) => { if (e.key === '-') e.preventDefault(); }}
+              placeholder={`Price (${symbol})`}
+              min="0.01"
+              step="0.01"
+              className={`!text-sm w-full ${newPrice !== '' && !priceValid ? '!border-red-400/60' : ''}`}
+            />
+            {newPrice !== '' && !priceValid && (
+              <p className="text-red-400 text-[10px] mt-1 pl-1">Price must be greater than 0</p>
+            )}
+            {isDuplicate && (
+              <p className="text-amber-400 text-[10px] mt-1 pl-1">This alert already exists</p>
+            )}
+          </div>
           <button
             onClick={handleAddAlert}
-            disabled={!newTicker.trim() || !newPrice}
+            disabled={!canAdd}
             className="px-4 py-2 rounded-xl bg-teal/10 border border-teal/30 text-teal text-sm font-semibold hover:bg-teal/20 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
             + Add Alert
