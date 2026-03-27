@@ -591,21 +591,6 @@ function PositionsPanel({ group, onEdit, editingId, onChange, onRemove, onAddPos
                         className="!text-sm"
                       />
                     </div>
-                    {mode !== 'simple' && (
-                      <div className="col-span-2 sm:col-span-2">
-                        <label className="text-text-muted text-[10px] uppercase tracking-wider block mb-1">
-                          Target Allocation (%)
-                        </label>
-                        <DebouncedInput
-                          type="number"
-                          value={p.targetAllocation ?? ''}
-                          onChange={(v) => onChange(p.id, 'targetAllocation', v)}
-                          parseNumber nullable
-                          min="0" max="100" step="1" placeholder="Optional"
-                          className="!text-sm"
-                        />
-                      </div>
-                    )}
                   </div>
 
                   {/* ── Confirm / Cancel bar ── */}
@@ -794,21 +779,6 @@ function SingleEditForm({ h, onChange, onRemove, onConfirm, onCancel, mode, symb
           />
           {hasNegativePrice && <p className="text-[10px] text-red-400 mt-1">Price must be positive</p>}
         </div>
-        {mode !== 'simple' && (
-          <div className="col-span-2 sm:col-span-2">
-            <label className="text-text-muted text-[10px] uppercase tracking-wider block mb-1">
-              Target Allocation (%)
-            </label>
-            <DebouncedInput
-              type="number"
-              value={h.targetAllocation ?? ''}
-              onChange={(v) => onChange(h.id, 'targetAllocation', v)}
-              parseNumber nullable
-              min="0" max="100" step="1" placeholder="Optional"
-              className="!text-sm"
-            />
-          </div>
-        )}
       </div>
 
       {/* ── Confirm / Cancel bar ── */}

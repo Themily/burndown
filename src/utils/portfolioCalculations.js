@@ -51,7 +51,6 @@ export function createBlankHolding() {
     quantity: 0,
     purchasePrice: 0,
     purchaseDate: new Date().toISOString().slice(0, 10),
-    targetAllocation: null,
   };
 }
 

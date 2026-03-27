@@ -38,7 +38,6 @@ const DEFAULT_PORTFOLIO = {
       quantity: 10,
       purchasePrice: 420.50,
       purchaseDate: '2024-01-15',
-      targetAllocation: null,
     },
   ],
   watchlists: [],

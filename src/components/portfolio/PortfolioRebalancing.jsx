@@ -2,6 +2,8 @@ import React from 'react';
 import { useCurrency } from '../../context/CurrencyContext';
 import { ASSET_CLASSES } from '../../utils/portfolioCalculations';
 
+const DEFAULT_TARGETS = { stock: 40, etf: 20, bond: 20, crypto: 10, commodity: 5, cash: 5 };
+
 export default function PortfolioRebalancing({ rebalancing, targetAllocations, setTargetAllocations }) {
   const { formatCurrency } = useCurrency();
 
@@ -11,9 +13,11 @@ export default function PortfolioRebalancing({ rebalancing, targetAllocations, s
   const isValid = Math.abs(totalTarget - 100) < 0.1;
 
   const handleTargetChange = (assetClass, value) => {
+    const parsed = parseFloat(value);
+    const clamped = isNaN(parsed) ? 0 : Math.min(100, Math.max(0, parsed));
     setTargetAllocations(prev => ({
       ...prev,
-      [assetClass]: parseFloat(value) || 0,
+      [assetClass]: clamped,
     }));
   };
 
@@ -35,10 +39,11 @@ export default function PortfolioRebalancing({ rebalancing, targetAllocations, s
                 type="number"
                 value={targetAllocations[ac.value] || 0}
                 onChange={(e) => handleTargetChange(ac.value, e.target.value)}
+                onKeyDown={(e) => { if (e.key === '-') e.preventDefault(); }}
                 min="0"
                 max="100"
                 step="1"
-                className="!text-sm !p-2"
+                className={`!text-sm !p-2 ${!isValid ? '!border-amber-400/60' : ''}`}
               />
               <span className="text-text-muted text-sm">%</span>
             </div>
@@ -46,8 +51,22 @@ export default function PortfolioRebalancing({ rebalancing, targetAllocations, s
         ))}
       </div>
 
-      <div className={`text-xs mb-4 font-mono ${isValid ? 'text-green' : 'text-amber'}`}>
-        Total: {totalTarget.toFixed(1)}% {isValid ? '✓' : '(must equal 100%)'}
+      <div className="flex items-center justify-between mb-4">
+        <div className={`text-xs font-mono flex items-center gap-1.5 ${isValid ? 'text-green' : 'text-amber'}`}>
+          {!isValid && (
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          )}
+          Total: {totalTarget.toFixed(1)}% {isValid ? '✓' : `— adjust by ${totalTarget > 100 ? '-' : '+'}${Math.abs(100 - totalTarget).toFixed(1)}% to reach 100%`}
+        </div>
+        <button
+          onClick={() => setTargetAllocations(() => ({ ...DEFAULT_TARGETS }))}
+          className="text-[11px] text-text-muted hover:text-teal transition-colors"
+        >
+          Reset to Defaults
+        </button>
       </div>
 
       {/* Recommendations table */}
@@ -89,7 +108,7 @@ export default function PortfolioRebalancing({ rebalancing, targetAllocations, s
                         r.suggestedTrade === 'Sell' ? 'bg-red-dim text-debt-red' :
                         'bg-bg-elevated text-text-muted'
                       }`}>
-                        {r.suggestedTrade}
+                          {r.suggestedTrade}
                       </span>
                     </td>
                     <td className="py-3 text-right font-mono tabular-nums text-text-primary">
@@ -100,6 +119,9 @@ export default function PortfolioRebalancing({ rebalancing, targetAllocations, s
               })}
             </tbody>
           </table>
+          <p className="text-text-muted/60 text-[10px] mt-3 text-right">
+            Differences within ±0.5% are considered balanced and show "Hold."
+          </p>
         </div>
       )}
     </div>
