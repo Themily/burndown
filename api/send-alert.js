@@ -79,7 +79,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Atlas Wealth <onboarding@resend.dev>',
+        from: 'Atlas Wealth <alerts@atlas-wealth.vercel.app>',
         to: [to],
         subject,
         html: htmlBody,
