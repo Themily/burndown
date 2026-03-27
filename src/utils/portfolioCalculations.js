@@ -82,13 +82,42 @@ export function calculatePortfolioSummary(holdings, priceCache = {}) {
     };
   }
 
-  const holdingDetails = holdings.map(h => {
+  const individualDetails = holdings.map(h => {
     const ticker = h.ticker?.toUpperCase();
     const cached = priceCache[ticker];
     const currentPrice = cached?.price || h.purchasePrice;
     const calc = calculateHoldingValue(h, currentPrice);
     return { ...h, ...calc };
   });
+
+  // Group positions by ticker (case-insensitive) into aggregated rows
+  const groupMap = new Map();
+  individualDetails.forEach(h => {
+    const key = (h.ticker || '').toUpperCase() || h.id; // ungrouped if no ticker
+    if (!groupMap.has(key)) {
+      groupMap.set(key, {
+        id: h.id,
+        name: h.name || '',
+        ticker: h.ticker || '',
+        assetClass: h.assetClass || 'stock',
+        quantity: 0,
+        costBasis: 0,
+        currentValue: 0,
+        gainLoss: 0,
+        currentPrice: h.currentPrice || 0,
+        purchaseDate: h.purchaseDate,
+      });
+    }
+    const g = groupMap.get(key);
+    g.quantity = round2(g.quantity + (h.quantity || 0));
+    g.costBasis = round2(g.costBasis + (h.costBasis || 0));
+    g.currentValue = round2(g.currentValue + (h.currentValue || 0));
+    g.gainLoss = round2(g.currentValue - g.costBasis);
+    g.gainLossPercent = g.costBasis > 0 ? round2((g.gainLoss / g.costBasis) * 100) : 0;
+    // Use the longest name among positions in the group
+    if ((h.name || '').length > g.name.length) g.name = h.name;
+  });
+  const holdingDetails = Array.from(groupMap.values());
 
   const totalValue = round2(holdingDetails.reduce((s, d) => s + d.currentValue, 0));
   const totalCostBasis = round2(holdingDetails.reduce((s, d) => s + d.costBasis, 0));
