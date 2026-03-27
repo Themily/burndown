@@ -16,7 +16,7 @@ import { checkAlerts } from '../utils/portfolioCalculations';
  * useEffect dependency array — which previously caused the interval to
  * reset to 0 every time setAlerts() updated the alerts state.
  */
-export function useAlertChecker(alerts, priceCache, alertEmail, setAlerts) {
+export function useAlertChecker(alerts, priceCache, alertEmail, setAlerts, currencySymbol = '$') {
   const intervalRef  = useRef(null);
   // Refs mirror the latest prop/state values for use inside the interval
   // without causing the effect to re-run.
@@ -24,12 +24,15 @@ export function useAlertChecker(alerts, priceCache, alertEmail, setAlerts) {
   const cacheRef     = useRef(priceCache);
   const emailRef     = useRef(alertEmail);
   const setAlertsRef = useRef(setAlerts);
+  // PA-6: ref for currency symbol so the email reflects the user's currency.
+  const symbolRef    = useRef(currencySymbol);
 
   // Keep refs in sync on every render — no side-effects, no interval reset.
   alertsRef.current    = alerts;
   cacheRef.current     = priceCache;
   emailRef.current     = alertEmail;
   setAlertsRef.current = setAlerts;
+  symbolRef.current    = currencySymbol;
 
   useEffect(() => {
     const check = async () => {
@@ -49,11 +52,12 @@ export function useAlertChecker(alerts, priceCache, alertEmail, setAlerts) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              to:           currentEmail,
-              ticker:       alert.ticker,
-              price:        alert.price,
-              condition:    alert.condition,
-              currentPrice: alert.currentPrice,
+              to:             currentEmail,
+              ticker:         alert.ticker,
+              price:          alert.price,
+              condition:      alert.condition,
+              currentPrice:   alert.currentPrice,
+              currencySymbol: symbolRef.current,
             }),
           });
 

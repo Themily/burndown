@@ -1,4 +1,5 @@
 import React, { useMemo, useCallback } from 'react';
+import { useCurrency } from '../../context/CurrencyContext';
 import PortfolioHeader from './PortfolioHeader';
 import PortfolioSummaryBar from './PortfolioSummaryBar';
 import PortfolioInputPanel from './PortfolioInputPanel';
@@ -68,6 +69,9 @@ export default function PortfolioLayout({
   // Fetch news (Intermediate+)
   const { articles, loading: newsLoading } = useNews();
 
+  // PA-6: get user's active currency symbol to pass into the alert email.
+  const { symbol: currencySymbol } = useCurrency();
+
   // Alert checker (Advanced)
   const setAlerts = useCallback((updater) => {
     setPortfolioInputs(prev => ({
@@ -80,7 +84,8 @@ export default function PortfolioLayout({
     mode === 'advanced' ? portfolioInputs.alerts : [],
     mergedPriceCache,
     portfolioInputs.alertEmail,
-    setAlerts
+    setAlerts,
+    currencySymbol
   );
 
   // ── Calculations (memoized) ──

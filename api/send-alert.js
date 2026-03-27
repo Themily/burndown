@@ -22,7 +22,9 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'RESEND_API_KEY not configured' });
   }
 
-  const { to, ticker, price, condition, currentPrice } = req.body || {};
+  // PA-6 fix: accept currencySymbol from the client so the email reflects
+  // the user's chosen currency instead of always hardcoding '$'.
+  const { to, ticker, price, condition, currentPrice, currencySymbol = '$' } = req.body || {};
 
   if (!to || !ticker || price == null || !condition || currentPrice == null) {
     return res.status(400).json({ error: 'Missing required fields: to, ticker, price, condition, currentPrice' });
@@ -38,7 +40,7 @@ export default async function handler(req, res) {
   }
 
   const conditionText = condition === 'above' ? 'risen above' : 'fallen below';
-  const subject = `🔔 Atlas Wealth Alert: ${ticker} has ${conditionText} $${price}`;
+  const subject = `🔔 Atlas Wealth Alert: ${ticker} has ${conditionText} ${currencySymbol}${price}`;
 
   const htmlBody = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 500px; margin: 0 auto; background: #0f1729; color: #e2e8f0; padding: 32px; border-radius: 16px;">
@@ -54,10 +56,10 @@ export default async function handler(req, res) {
           ${ticker} has ${conditionText}
         </p>
         <p style="font-size: 14px; color: #94a3b8; margin: 0 0 16px;">
-          Your target: $${Number(price).toFixed(2)}
+          Your target: ${currencySymbol}${Number(price).toFixed(2)}
         </p>
         <p style="font-size: 32px; font-weight: 700; margin: 0; color: ${condition === 'above' ? '#22C55E' : '#EF4444'};">
-          $${Number(currentPrice).toFixed(2)}
+          ${currencySymbol}${Number(currentPrice).toFixed(2)}
         </p>
         <p style="font-size: 12px; color: #64748b; margin-top: 4px;">Current Price</p>
       </div>
