@@ -164,6 +164,12 @@ export default function PortfolioAlerts({ alerts = [], setAlerts, alertEmail = '
                       Current: {formatCurrencyExact(currentPrice)}
                     </span>
                   )}
+                  {/* PA-9: display createdAt timestamp that was stored but never shown */}
+                  {alert.createdAt && (
+                    <span className="text-text-muted/60 text-[10px] hidden sm:inline">
+                      Created {new Date(alert.createdAt).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   {alert.triggered && (
