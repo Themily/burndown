@@ -358,10 +358,14 @@ export function checkAlerts(alerts, priceCache) {
     const cached = priceCache[ticker];
     const currentPrice = cached?.price || 0;
 
+    // PA-7 fix: use strict inequality so "above" means strictly greater than
+    // the threshold and "below" means strictly less than. Previously >= / <=
+    // caused alerts to fire at the exact threshold, which is semantically wrong
+    // for "Price Goes Above $X" (the price hasn't gone above if it equals X).
     let shouldFire = false;
     if (currentPrice > 0 && !alert.triggered) {
-      if (alert.condition === 'above' && currentPrice >= alert.price) shouldFire = true;
-      if (alert.condition === 'below' && currentPrice <= alert.price) shouldFire = true;
+      if (alert.condition === 'above' && currentPrice > alert.price) shouldFire = true;
+      if (alert.condition === 'below' && currentPrice < alert.price) shouldFire = true;
     }
 
     return { ...alert, shouldFire, currentPrice };
