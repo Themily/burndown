@@ -39,8 +39,13 @@ export default function PortfolioAlerts({ alerts = [], setAlerts, alertEmail = '
     setAlerts(prev => prev.filter(a => a.id !== id));
   };
 
+  // PA-10: store resetAt timestamp so checkAlerts can enforce a cooldown
+  // period after reset, preventing the alert from re-firing immediately
+  // while the price still meets the threshold.
   const handleResetAlert = (id) => {
-    setAlerts(prev => prev.map(a => a.id === id ? { ...a, triggered: false } : a));
+    setAlerts(prev => prev.map(a =>
+      a.id === id ? { ...a, triggered: false, resetAt: Date.now() } : a
+    ));
   };
 
   return (

@@ -350,8 +350,16 @@ export function calculateGoalProgress(totalValue, goal) {
 /**
  * Check price alerts against current prices.
  */
+// PA-10: after a reset, the alert must wait for the price to first move
+// OUTSIDE the threshold and then cross back in before it can re-fire.
+// This prevents the immediate re-trigger that happened when the price
+// was still past the threshold at the moment of reset.
+const RESET_COOLDOWN_MS = 300000; // 5 minutes
+
 export function checkAlerts(alerts, priceCache) {
   if (!alerts || alerts.length === 0) return [];
+
+  const now = Date.now();
 
   return alerts.map(alert => {
     const ticker = alert.ticker?.toUpperCase();
@@ -364,8 +372,14 @@ export function checkAlerts(alerts, priceCache) {
     // for "Price Goes Above $X" (the price hasn't gone above if it equals X).
     let shouldFire = false;
     if (currentPrice > 0 && !alert.triggered) {
-      if (alert.condition === 'above' && currentPrice > alert.price) shouldFire = true;
-      if (alert.condition === 'below' && currentPrice < alert.price) shouldFire = true;
+      // PA-10: enforce cooldown after reset so the alert doesn't re-fire
+      // immediately while the price still meets the threshold.
+      if (alert.resetAt && (now - alert.resetAt) < RESET_COOLDOWN_MS) {
+        shouldFire = false;
+      } else {
+        if (alert.condition === 'above' && currentPrice > alert.price) shouldFire = true;
+        if (alert.condition === 'below' && currentPrice < alert.price) shouldFire = true;
+      }
     }
 
     return { ...alert, shouldFire, currentPrice };
