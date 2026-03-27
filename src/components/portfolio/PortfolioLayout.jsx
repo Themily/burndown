@@ -42,7 +42,11 @@ export default function PortfolioLayout({
   // Fetch live prices (includes portfolio tickers + market tickers)
   const portfolioTickers = holdings.map(h => h.ticker?.toUpperCase()).filter(Boolean);
   const watchlistTickers = (portfolioInputs.watchlists || []).flatMap(w => w.tickers || []);
-  const allTickers = [...new Set([...portfolioTickers, ...watchlistTickers])];
+  // PA-3 fix: include alert tickers so prices are fetched even when the ticker
+  // is not held in the portfolio — without this, priceCache[ticker] is always
+  // undefined, currentPrice stays 0, and the alert condition never evaluates.
+  const alertTickers = (portfolioInputs.alerts || []).map(a => a.ticker?.toUpperCase()).filter(Boolean);
+  const allTickers = [...new Set([...portfolioTickers, ...watchlistTickers, ...alertTickers])];
   const { prices: livePrices, loading: pricesLoading, lastUpdated } = useMarketData(allTickers);
 
   // Merge live prices into priceCache
