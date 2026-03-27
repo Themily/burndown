@@ -63,8 +63,24 @@ export default function PortfolioAlerts({ alerts = [], setAlerts, alertEmail = '
           value={alertEmail}
           onChange={(e) => setAlertEmail(e.target.value)}
           placeholder="your@email.com"
-          className="!text-sm max-w-md"
+          className={`!text-sm max-w-md ${!alertEmail && alerts.length > 0 ? '!border-amber-400/60' : ''}`}
         />
+        {/* PA-8: warn when alerts exist but no email is configured */}
+        {!alertEmail && alerts.length > 0 && (
+          <p className="text-amber-400 text-[11px] mt-2 flex items-center gap-1.5">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            You have {alerts.length} active alert{alerts.length !== 1 ? 's' : ''} but no email configured — notifications won't be delivered.
+          </p>
+        )}
+        {/* PA-8: gentle hint when no alerts yet and no email */}
+        {!alertEmail && alerts.length === 0 && (
+          <p className="text-text-muted text-[11px] mt-2">
+            Add your email before creating alerts so you'll be notified.
+          </p>
+        )}
       </div>
 
       {/* Add new alert */}
