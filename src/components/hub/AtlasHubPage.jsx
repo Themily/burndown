@@ -28,7 +28,7 @@ export default function AtlasHubPage({ onLaunchApp, focusRef }) {
     <main
       role="main"
       aria-label="Atlas Wealth financial tools hub"
-      className="fade-in min-h-screen flex flex-col"
+      className="fade-in min-h-screen flex flex-col max-w-6xl mx-auto"
     >
       <div tabIndex={-1} ref={focusRef} className="outline-none" />
 

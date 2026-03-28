@@ -4,7 +4,7 @@ import { SmallAppIcon } from './AppCard';
 
 export default function AtlasHubFooter() {
   return (
-    <footer className="mx-4 mt-8 mb-6">
+    <section aria-label="Atlas Wealth tools" className="mx-4 mt-8 mb-6">
       <div className="card !py-5 !px-7">
         {/* App icons row with names */}
         <div className="flex items-center justify-center gap-6 mb-4">
@@ -35,6 +35,6 @@ export default function AtlasHubFooter() {
           Atlas Wealth is an educational financial toolkit. Not financial advice.
         </p>
       </div>
-    </footer>
+    </section>
   );
 }

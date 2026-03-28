@@ -108,12 +108,12 @@ export default function AppCard({ app, onLaunch }) {
 
       {/* Name + tagline + description */}
       <div className="relative z-10">
-        <h3
+        <h2
           className="text-3xl font-bold font-heading mb-2"
           style={{ background: `linear-gradient(135deg, ${accentStart}, ${accentEnd})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}
         >
           {name}
-        </h3>
+        </h2>
         <p className="text-text-primary text-lg font-medium mb-2">{tagline}</p>
         <p className="text-text-muted text-sm mb-7 leading-relaxed">{description}</p>
       </div>

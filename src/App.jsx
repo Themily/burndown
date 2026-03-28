@@ -196,6 +196,16 @@ function App() {
     return () => clearTimeout(id);
   }, [currentApp, currentPage]);
 
+  // Update document title based on current app
+  useEffect(() => {
+    const titles = {
+      burndown: 'BurnDown — Burn Your Debt. Fuel Your FIRE.',
+      portfolio: 'Portfolio — Grow Wealth with Clarity',
+      compound: 'Compound — Watch Your Money Grow',
+    };
+    document.title = titles[currentApp] || 'Atlas Wealth — Your Financial Command Centre';
+  }, [currentApp]);
+
   // Escape key returns to hub from any app
   useEffect(() => {
     function handleKey(e) {
