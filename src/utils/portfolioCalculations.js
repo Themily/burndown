@@ -412,7 +412,8 @@ export function buildPerformanceEstimate(holdings, priceCache) {
 
     holdings.forEach(h => {
       const purchaseDate = new Date(h.purchaseDate);
-      if (purchaseDate <= month) {
+      const purchaseMonth = new Date(purchaseDate.getFullYear(), purchaseDate.getMonth(), 1);
+      if (purchaseMonth <= month) {
         // Use current price if available, else estimate with avg return
         const ticker = h.ticker?.toUpperCase();
         const cached = priceCache[ticker];
