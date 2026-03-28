@@ -214,10 +214,6 @@ export default function PortfolioLayout({
                 setWatchlists={setWatchlists}
                 priceCache={mergedPriceCache}
               />
-              <PortfolioNews
-                articles={articles}
-                loading={newsLoading}
-              />
             </>
           )}
 
@@ -244,6 +240,10 @@ export default function PortfolioLayout({
                 alertEmail={portfolioInputs.alertEmail}
                 setAlertEmail={setAlertEmail}
                 priceCache={mergedPriceCache}
+              />
+              <PortfolioNews
+                articles={articles}
+                loading={newsLoading}
               />
             </>
           )}
