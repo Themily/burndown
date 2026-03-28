@@ -232,7 +232,7 @@ export function runMonteCarloSimulation(
   goalAmount = 0
 ) {
   const months = years * 12;
-  if (months === 0 || totalValue <= 0) {
+  if (months <= 0 || totalValue <= 0) {
     return { median: 0, p10: 0, p25: 0, p75: 0, p90: 0, probabilityOfGoal: 0, yearlyPercentiles: [] };
   }
 

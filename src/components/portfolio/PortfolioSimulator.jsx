@@ -29,8 +29,19 @@ export default function PortfolioSimulator({
   priceCache,
   totalValue,
   allocation,
+  monthlyContribution = 0,
 }) {
   const { formatCurrency, symbol } = useCurrency();
+
+  const formatCompact = (val) => {
+    const abs = Math.abs(val);
+    if (abs >= 1e12)  return `${symbol}${(val / 1e12).toFixed(1)}T`;
+    if (abs >= 1e9)   return `${symbol}${(val / 1e9).toFixed(1)}B`;
+    if (abs >= 1e6)   return `${symbol}${(val / 1e6).toFixed(1)}M`;
+    if (abs >= 1e5)   return `${symbol}${(val / 1e3).toFixed(0)}k`;
+    return formatCurrency(val);
+  };
+
   const [activeTab, setActiveTab] = useState('whatif');
 
   // What-If calculation
@@ -57,7 +68,7 @@ export default function PortfolioSimulator({
       }
       const result = runMonteCarloSimulation(
         totalValue,
-        simulator.monteCarloYears > 0 ? (totalValue * 0.005) : 0, // assume 0.5% monthly contribution
+        monthlyContribution,
         simulator.monteCarloYears,
         1000,
         Object.keys(allocationWeights).length > 0 ? allocationWeights : null,
@@ -66,16 +77,16 @@ export default function PortfolioSimulator({
       setMonteCarloResult(result);
       setMcRunning(false);
     }, 50);
-  }, [totalValue, simulator.monteCarloYears, simulator.monteCarloGoal, allocation]);
+  }, [totalValue, monthlyContribution, simulator.monteCarloYears, simulator.monteCarloGoal, allocation]);
 
   const handleChange = (field, value) => {
     setSimulator(prev => ({ ...prev, [field]: value }));
   };
 
   const formatYAxis = (val) => {
-    if (val >= 1000000) return `${(val / 1000000).toFixed(1)}M`;
-    if (val >= 1000) return `${(val / 1000).toFixed(0)}k`;
-    return val.toFixed(0);
+    if (val >= 1000000) return `${symbol}${(val / 1000000).toFixed(1)}M`;
+    if (val >= 1000) return `${symbol}${(val / 1000).toFixed(0)}k`;
+    return `${symbol}${val.toFixed(0)}`;
   };
 
   return (
@@ -117,7 +128,7 @@ export default function PortfolioSimulator({
                 <input
                   type="number"
                   value={simulator.whatIfAmount || ''}
-                  onChange={(e) => handleChange('whatIfAmount', parseFloat(e.target.value) || 0)}
+                  onChange={(e) => handleChange('whatIfAmount', Math.max(0, parseFloat(e.target.value) || 0))}
                   min="0"
                   className="!text-sm"
                 />
@@ -151,11 +162,11 @@ export default function PortfolioSimulator({
               ))}
               <div className="border-t border-border-subtle mt-2 pt-2 flex justify-between">
                 <span className="text-text-muted text-sm font-semibold">Total</span>
-                <span className="text-text-primary text-sm font-mono font-semibold">{formatCurrency(totalValue)}</span>
+                <span className="text-text-primary text-sm font-mono font-semibold">{formatCompact(totalValue)}</span>
               </div>
             </div>
             <div className="bg-bg-elevated border border-teal/20 rounded-xl p-4">
-              <h3 className="text-teal text-xs uppercase tracking-wider mb-3">After Adding {formatCurrency(simulator.whatIfAmount)}</h3>
+              <h3 className="text-teal text-xs uppercase tracking-wider mb-3">After Adding {formatCompact(simulator.whatIfAmount)}</h3>
               {whatIfResult.newAllocation.map(a => (
                 <div key={a.assetClass} className="flex justify-between py-1">
                   <span className="text-text-secondary text-sm">{a.label}</span>
@@ -164,7 +175,7 @@ export default function PortfolioSimulator({
               ))}
               <div className="border-t border-border-subtle mt-2 pt-2 flex justify-between">
                 <span className="text-teal text-sm font-semibold">New Total</span>
-                <span className="text-green text-sm font-mono font-semibold">{formatCurrency(whatIfResult.projectedValue)}</span>
+                <span className="text-green text-sm font-mono font-semibold">{formatCompact(whatIfResult.projectedValue)}</span>
               </div>
             </div>
           </div>
@@ -181,7 +192,7 @@ export default function PortfolioSimulator({
                 <input
                   type="number"
                   value={simulator.monteCarloYears || ''}
-                  onChange={(e) => handleChange('monteCarloYears', parseInt(e.target.value) || 0)}
+                  onChange={(e) => handleChange('monteCarloYears', Math.max(0, parseInt(e.target.value) || 0))}
                   min="1"
                   max="50"
                   className="!text-sm"
@@ -194,7 +205,7 @@ export default function PortfolioSimulator({
                 <input
                   type="number"
                   value={simulator.monteCarloGoal || ''}
-                  onChange={(e) => handleChange('monteCarloGoal', parseFloat(e.target.value) || 0)}
+                  onChange={(e) => handleChange('monteCarloGoal', Math.max(0, parseFloat(e.target.value) || 0))}
                   min="0"
                   className="!text-sm"
                 />
@@ -209,6 +220,10 @@ export default function PortfolioSimulator({
                 </button>
               </div>
             </div>
+            <p className="text-text-muted text-[10px] mt-2">
+              Using monthly contribution of <span className="text-teal font-semibold">{formatCurrency(monthlyContribution)}/mo</span> from Goal Planner
+              {monthlyContribution === 0 && ' — set a contribution in Goal Planner for more accurate projections'}
+            </p>
           </div>
 
           {monteCarloResult && (
@@ -216,11 +231,11 @@ export default function PortfolioSimulator({
               {/* Stats */}
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
                 {[
-                  { label: 'Worst 10%', value: formatCurrency(monteCarloResult.p10), color: 'text-debt-red' },
-                  { label: '25th Percentile', value: formatCurrency(monteCarloResult.p25), color: 'text-amber' },
-                  { label: 'Median', value: formatCurrency(monteCarloResult.median), color: 'text-teal' },
-                  { label: '75th Percentile', value: formatCurrency(monteCarloResult.p75), color: 'text-green' },
-                  { label: 'Best 10%', value: formatCurrency(monteCarloResult.p90), color: 'text-green' },
+                  { label: 'Worst 10%', value: formatCompact(monteCarloResult.p10), color: 'text-debt-red' },
+                  { label: '25th Percentile', value: formatCompact(monteCarloResult.p25), color: 'text-amber' },
+                  { label: 'Median', value: formatCompact(monteCarloResult.median), color: 'text-teal' },
+                  { label: '75th Percentile', value: formatCompact(monteCarloResult.p75), color: 'text-green' },
+                  { label: 'Best 10%', value: formatCompact(monteCarloResult.p90), color: 'text-green' },
                 ].map((s, i) => (
                   <div key={i} className="bg-bg-elevated border border-border-subtle rounded-xl p-3 text-center">
                     <p className="text-text-muted text-[10px] uppercase tracking-wider mb-1">{s.label}</p>
@@ -233,7 +248,7 @@ export default function PortfolioSimulator({
               {simulator.monteCarloGoal > 0 && (
                 <div className="bg-bg-elevated border border-teal/20 rounded-xl p-4 mb-6 text-center">
                   <p className="text-text-secondary text-sm">
-                    Probability of reaching {formatCurrency(simulator.monteCarloGoal)} in {simulator.monteCarloYears} years:
+                    Probability of reaching {formatCompact(simulator.monteCarloGoal)} in {simulator.monteCarloYears} years:
                   </p>
                   <p className={`font-mono text-3xl font-bold mt-2 ${
                     monteCarloResult.probabilityOfGoal >= 70 ? 'text-green' :
@@ -246,8 +261,8 @@ export default function PortfolioSimulator({
 
               {/* Fan Chart */}
               {monteCarloResult.yearlyPercentiles.length > 0 && (
-                <div style={{ height: 300 }}>
-                  <ResponsiveContainer width="100%" height="100%">
+                <div className="overflow-hidden" style={{ minWidth: 1, minHeight: 1 }}>
+                  <ResponsiveContainer width="100%" height={300}>
                     <AreaChart data={monteCarloResult.yearlyPercentiles} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                       <defs>
                         <linearGradient id="gradP90" x1="0" y1="0" x2="0" y2="1">
@@ -264,6 +279,7 @@ export default function PortfolioSimulator({
                         tick={{ fill: '#5c5c7a', fontSize: 11, fontFamily: 'var(--font-mono)' }}
                         axisLine={false}
                         tickLine={false}
+                        interval={simulator.monteCarloYears <= 15 ? 0 : Math.ceil(simulator.monteCarloYears / 10) - 1}
                       />
                       <YAxis
                         tickFormatter={formatYAxis}
@@ -280,6 +296,29 @@ export default function PortfolioSimulator({
                       <Area type="monotone" dataKey="p10" stroke="#EF4444" strokeWidth={1} strokeDasharray="4 4" fill="none" />
                     </AreaChart>
                   </ResponsiveContainer>
+                  {/* Legend */}
+                  <div className="flex flex-wrap justify-center gap-x-5 gap-y-1 mt-3">
+                    {[
+                      { label: 'Best 10%', color: '#22C55E', dashed: false, filled: true },
+                      { label: '75th Pctl', color: '#2DD4BF', dashed: false, filled: true },
+                      { label: 'Median', color: '#2DD4BF', dashed: false, filled: false },
+                      { label: '25th Pctl', color: '#F59E0B', dashed: true, filled: false },
+                      { label: 'Worst 10%', color: '#EF4444', dashed: true, filled: false },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center gap-1.5">
+                        {item.filled ? (
+                          <span className="w-4 h-2.5 rounded-sm" style={{ backgroundColor: item.color, opacity: 0.3 }} />
+                        ) : (
+                          <svg width="16" height="10" className="shrink-0">
+                            <line x1="0" y1="5" x2="16" y2="5"
+                              stroke={item.color} strokeWidth={item.dashed ? 1 : 2}
+                              strokeDasharray={item.dashed ? '3 2' : 'none'} />
+                          </svg>
+                        )}
+                        <span className="text-text-muted text-[10px]">{item.label}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </>

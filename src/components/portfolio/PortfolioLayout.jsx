@@ -236,6 +236,7 @@ export default function PortfolioLayout({
                 priceCache={mergedPriceCache}
                 totalValue={summary.totalValue}
                 allocation={allocation}
+                monthlyContribution={portfolioInputs.goal?.monthlyContribution || 0}
               />
               <PortfolioAlerts
                 alerts={portfolioInputs.alerts}
