@@ -164,7 +164,7 @@ export default function FIREPanel({ fireInputs, setFireInputs, fireComparison, d
             {isFinite(fireA_months) ? monthsToDate(fireA_months) : '—'}
           </div>
         </div>
-        <div className="bg-bg-elevated border border-border-subtle backdrop-blur-xl rounded-2xl p-4 text-center border border-fire-start/30">
+        <div className="bg-bg-elevated border border-fire-start/30 backdrop-blur-xl rounded-2xl p-4 text-center">
           <div className="text-text-muted text-xs uppercase tracking-wider mb-1">Aggressive Payoff Path</div>
           <div className="font-mono text-xl font-bold fire-text tabular-nums">
             {isFinite(fireB_months) ? formatMonthsDuration(fireB_months) : 'N/A'}
@@ -190,7 +190,7 @@ export default function FIREPanel({ fireInputs, setFireInputs, fireComparison, d
 
       {/* Chart */}
       <div className="h-[300px] md:h-[350px]">
-        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+        <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
           <LineChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
             <XAxis

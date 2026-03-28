@@ -11,10 +11,20 @@ function DebtForm({ debt, onSave, onCancel, isNew }) {
     apr: debt?.apr ?? '',
     minPayment: debt?.minPayment ?? '',
   });
+  const [submitted, setSubmitted] = useState(false);
+
+  const errors = {
+    name: !form.name,
+    balance: form.balance === '',
+    apr: form.apr === '',
+    minPayment: form.minPayment === '',
+  };
+  const hasErrors = Object.values(errors).some(Boolean);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!form.name || !form.balance || !form.apr || !form.minPayment) return;
+    setSubmitted(true);
+    if (hasErrors) return;
     onSave({
       ...debt,
       id: debt?.id || `debt-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -29,17 +39,16 @@ function DebtForm({ debt, onSave, onCancel, isNew }) {
   const typeInfo = DEBT_TYPES.find(t => t.value === form.type);
 
   return (
-    <form onSubmit={handleSubmit} className="bg-bg-input rounded-lg p-4 border border-border-subtle space-y-3 fade-in">
+    <form onSubmit={handleSubmit} noValidate className="bg-bg-input rounded-lg p-4 border border-border-subtle space-y-3 fade-in">
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-text-muted text-xs uppercase tracking-wider block mb-1">Name</label>
+          <label className={`text-xs uppercase tracking-wider block mb-1 ${submitted && errors.name ? 'text-debt-red' : 'text-text-muted'}`}>Name</label>
           <input
             type="text"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             placeholder="e.g., Chase Sapphire"
-            className="!text-sm"
-            required
+            className={`!text-sm ${submitted && errors.name ? '!border-debt-red' : ''}`}
             aria-label="Debt name"
           />
         </div>
@@ -59,7 +68,7 @@ function DebtForm({ debt, onSave, onCancel, isNew }) {
       </div>
       <div className="grid grid-cols-3 gap-3">
         <div>
-          <label className="text-text-muted text-xs uppercase tracking-wider block mb-1">Balance ({symbol})</label>
+          <label className={`text-xs uppercase tracking-wider block mb-1 ${submitted && errors.balance ? 'text-debt-red' : 'text-text-muted'}`}>Balance ({symbol})</label>
           <input
             type="number"
             value={form.balance}
@@ -67,12 +76,12 @@ function DebtForm({ debt, onSave, onCancel, isNew }) {
             placeholder="8,200"
             step="0.01"
             min="0"
-            required
             aria-label="Current balance"
+            className={submitted && errors.balance ? '!border-debt-red' : ''}
           />
         </div>
         <div>
-          <label className="text-text-muted text-xs uppercase tracking-wider block mb-1">APR (%)</label>
+          <label className={`text-xs uppercase tracking-wider block mb-1 ${submitted && errors.apr ? 'text-debt-red' : 'text-text-muted'}`}>APR (%)</label>
           <input
             type="number"
             value={form.apr}
@@ -81,12 +90,12 @@ function DebtForm({ debt, onSave, onCancel, isNew }) {
             step="0.01"
             min="0"
             max="100"
-            required
             aria-label="Annual percentage rate"
+            className={submitted && errors.apr ? '!border-debt-red' : ''}
           />
         </div>
         <div>
-          <label className="text-text-muted text-xs uppercase tracking-wider block mb-1">Min Payment ({symbol})</label>
+          <label className={`text-xs uppercase tracking-wider block mb-1 ${submitted && errors.minPayment ? 'text-debt-red' : 'text-text-muted'}`}>Min Payment ({symbol})</label>
           <input
             type="number"
             value={form.minPayment}
@@ -94,11 +103,16 @@ function DebtForm({ debt, onSave, onCancel, isNew }) {
             placeholder="205"
             step="0.01"
             min="0"
-            required
             aria-label="Minimum monthly payment"
+            className={submitted && errors.minPayment ? '!border-debt-red' : ''}
           />
         </div>
       </div>
+      {submitted && hasErrors && (
+        <p className="text-debt-red text-xs font-medium" role="alert">
+          Please fill in all required fields.
+        </p>
+      )}
       <div className="flex gap-2 justify-end">
         {onCancel && (
           <button
@@ -121,7 +135,7 @@ function DebtForm({ debt, onSave, onCancel, isNew }) {
 }
 
 function DebtItem({ debt, index, onEdit, onDelete, onMoveUp, onMoveDown, isFirst, isLast }) {
-  const { symbol, formatCurrencyExact } = useCurrency();
+  const { symbol, formatCurrency, formatCurrencyExact } = useCurrency();
   const typeInfo = DEBT_TYPES.find(t => t.value === debt.type) || DEBT_TYPES[DEBT_TYPES.length - 1];
 
   return (
@@ -156,14 +170,14 @@ function DebtItem({ debt, index, onEdit, onDelete, onMoveUp, onMoveDown, isFirst
         {/* Stats block */}
         <div className="text-right shrink-0">
           <div className="font-mono text-lg font-bold text-debt-red tabular-nums">
-            {symbol}{debt.balance.toLocaleString(undefined, { minimumFractionDigits: 0 })}
+            {formatCurrency(debt.balance)}
           </div>
           <div className="flex items-center gap-2 justify-end mt-1">
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-bg-input text-xs font-mono text-amber tabular-nums">
               {debt.apr}% APR
             </span>
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-bg-input text-xs font-mono text-text-secondary tabular-nums">
-              {symbol}{debt.minPayment}/mo
+              {formatCurrency(debt.minPayment)}/mo
             </span>
           </div>
         </div>

@@ -10,7 +10,7 @@ export default function CashFlowBreakdown({ debts, extraPayment, fireInputs, set
   const { monthlyIncome, monthlyInvestment } = fireInputs;
   const remaining = monthlyIncome - totalDebtPayments - monthlyInvestment;
   const savingsRate = monthlyIncome > 0
-    ? round2(((monthlyInvestment + extraPayment) / monthlyIncome) * 100)
+    ? round2((monthlyInvestment / monthlyIncome) * 100)
     : 0;
 
   const items = [

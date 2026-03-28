@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useCurrency } from '../context/CurrencyContext';
 import { exportPDF, exportExcel } from '../utils/exportUtils';
 
@@ -7,20 +7,9 @@ export default function ExportButtons({ debts, payoffResult, minimumOnlyResult, 
   const [exportingPDF, setExportingPDF] = useState(false);
   const [exportingXLSX, setExportingXLSX] = useState(false);
 
-  const exportData = {
-    debts,
-    payoffResult,
-    minimumOnlyResult,
-    extraPayment,
-    strategy,
-    fireInputs,
-    fireComparison,
-    currencyCode: currency,
-  };
-
-  const handlePDF = useCallback(() => {
+  const handlePDF = () => {
     setExportingPDF(true);
-    // Small delay so the button state renders before the blocking PDF generation
+    const exportData = { debts, payoffResult, minimumOnlyResult, extraPayment, strategy, fireInputs, fireComparison, currencyCode: currency };
     setTimeout(() => {
       try {
         exportPDF(exportData);
@@ -29,10 +18,11 @@ export default function ExportButtons({ debts, payoffResult, minimumOnlyResult, 
       }
       setExportingPDF(false);
     }, 50);
-  }, [exportData]);
+  };
 
-  const handleExcel = useCallback(() => {
+  const handleExcel = () => {
     setExportingXLSX(true);
+    const exportData = { debts, payoffResult, minimumOnlyResult, extraPayment, strategy, fireInputs, fireComparison, currencyCode: currency };
     setTimeout(() => {
       try {
         exportExcel(exportData);
@@ -41,7 +31,7 @@ export default function ExportButtons({ debts, payoffResult, minimumOnlyResult, 
       }
       setExportingXLSX(false);
     }, 50);
-  }, [exportData]);
+  };
 
   if (debts.length === 0) return null;
 

@@ -377,14 +377,20 @@ export function buildFIREComparison(debts, extraPayment, method, fireInputs) {
   }
   const fireB_post = calculateFIRE(round2(assetsAtDebtFree), postDebtMonthlyInvestment, annualReturn, annualExpenses);
 
+  // If FI is already achieved (current assets >= FI number), both paths are 0
+  // Don't penalize aggressive path by adding debt payoff time when FI is already met
+  const alreadyFI = currentAssets >= fiNumber;
+  const fireB_months = alreadyFI ? 0 : debtFreeMonth + fireB_post.monthsToFI;
+  const fireA_months = fireA.monthsToFI;
+
   return {
     scenarioA,
     scenarioB,
     crossoverMonth,
     fiNumber,
-    fireA_months: fireA.monthsToFI,
-    fireB_months: debtFreeMonth + fireB_post.monthsToFI,
-    fireAcceleration: fireA.monthsToFI - (debtFreeMonth + fireB_post.monthsToFI),
+    fireA_months,
+    fireB_months,
+    fireAcceleration: fireA_months - fireB_months,
     postDebtMonthlyInvestment,
   };
 }

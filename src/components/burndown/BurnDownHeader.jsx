@@ -49,7 +49,7 @@ export default function BurnDownHeader({ currentPage = 'dashboard', onNavigatePa
                       ? 'text-text-muted/40 cursor-not-allowed'
                       : 'text-text-muted hover:text-text-secondary hover:bg-bg-elevated/50'
                 }`}
-                title={isDisabled ? 'Add debts and extra payment to unlock' : ''}
+                title={isDisabled ? 'Add debts to unlock' : ''}
               >
                 {page.label}
               </button>
@@ -58,6 +58,39 @@ export default function BurnDownHeader({ currentPage = 'dashboard', onNavigatePa
         </nav>
 
         <CurrencySelector />
+      </div>
+
+      {/* Mobile nav pills */}
+      <div className="flex md:hidden items-center justify-center mb-8">
+        <nav className="flex items-center bg-bg-card border border-border-subtle rounded-full px-2 py-1.5 gap-1 backdrop-blur-xl">
+          {PAGES.map((page) => {
+            const isActive = currentPage === page.id;
+            const isDisabled = (page.id === 'timeline' || page.id === 'fire') && !hasPayoffResult;
+
+            return (
+              <button
+                key={page.id}
+                onClick={() => {
+                  if (!isDisabled) {
+                    onNavigatePage(page.id);
+                    window.scrollTo(0, 0);
+                  }
+                }}
+                disabled={isDisabled}
+                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
+                  isActive
+                    ? 'bg-bg-elevated text-text-primary shadow-sm'
+                    : isDisabled
+                      ? 'text-text-muted/40 cursor-not-allowed'
+                      : 'text-text-muted hover:text-text-secondary hover:bg-bg-elevated/50'
+                }`}
+                title={isDisabled ? 'Add debts to unlock' : ''}
+              >
+                {page.label}
+              </button>
+            );
+          })}
+        </nav>
       </div>
 
       {/* Hero text */}
