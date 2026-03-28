@@ -324,26 +324,50 @@ export function runMonteCarloSimulation(
 /**
  * Goal planner: check progress toward target.
  */
-export function calculateGoalProgress(totalValue, goal) {
+export function calculateGoalProgress(totalValue, goal, allocation = []) {
   if (!goal || !goal.targetValue) {
     return { currentProgress: 0, monthsRemaining: 0, monthlyNeeded: 0, onTrack: false };
   }
 
   const currentProgress = round2((totalValue / goal.targetValue) * 100);
 
-  const targetDate = new Date(goal.targetDate);
+  const targetDate = goal.targetDate ? new Date(goal.targetDate) : null;
   const now = new Date();
-  const monthsRemaining = Math.max(0,
-    (targetDate.getFullYear() - now.getFullYear()) * 12 + (targetDate.getMonth() - now.getMonth())
-  );
+  const monthsRemaining = targetDate && !isNaN(targetDate)
+    ? Math.max(0, (targetDate.getFullYear() - now.getFullYear()) * 12 + (targetDate.getMonth() - now.getMonth()))
+    : 0;
 
   const gap = Math.max(0, goal.targetValue - totalValue);
-  const monthlyNeeded = monthsRemaining > 0 ? round2(gap / monthsRemaining) : gap;
+
+  // Compute weighted annual return from portfolio allocation
+  let annualReturn = 0;
+  if (allocation.length > 0) {
+    allocation.forEach(a => {
+      const weight = (a.percent || 0) / 100;
+      const assumption = RETURN_ASSUMPTIONS[a.assetClass] || RETURN_ASSUMPTIONS.stock;
+      annualReturn += assumption.mean * weight;
+    });
+  }
+
+  let monthlyNeeded;
+  const r = annualReturn / 12; // monthly return rate
+  if (monthsRemaining <= 0) {
+    monthlyNeeded = gap;
+  } else if (r > 0) {
+    // FV-of-annuity: solve for PMT where FV = PV*(1+r)^n + PMT*((1+r)^n - 1)/r
+    // PMT = (targetValue - totalValue*(1+r)^n) * r / ((1+r)^n - 1)
+    const compoundFactor = Math.pow(1 + r, monthsRemaining);
+    const futureCurrentValue = totalValue * compoundFactor;
+    const adjustedGap = Math.max(0, goal.targetValue - futureCurrentValue);
+    monthlyNeeded = round2(adjustedGap * r / (compoundFactor - 1));
+  } else {
+    monthlyNeeded = round2(gap / monthsRemaining);
+  }
 
   const monthlyContribution = goal.monthlyContribution || 0;
   const onTrack = monthlyContribution >= monthlyNeeded || currentProgress >= 100;
 
-  return { currentProgress: Math.min(100, currentProgress), monthsRemaining, monthlyNeeded, onTrack };
+  return { currentProgress, monthsRemaining, monthlyNeeded, onTrack };
 }
 
 /**

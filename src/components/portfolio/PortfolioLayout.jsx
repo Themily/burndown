@@ -113,9 +113,9 @@ export default function PortfolioLayout({
 
   const goalProgress = useMemo(
     () => mode === 'advanced'
-      ? calculateGoalProgress(summary.totalValue, portfolioInputs.goal)
+      ? calculateGoalProgress(summary.totalValue, portfolioInputs.goal, allocation)
       : null,
-    [summary.totalValue, portfolioInputs.goal, mode]
+    [summary.totalValue, portfolioInputs.goal, allocation, mode]
   );
 
   // ── State updaters ──
