@@ -55,7 +55,7 @@ export default function CompoundSchedule({ result, mode }) {
               <tr className="border-t-2 border-border-medium bg-bg-elevated/50">
                 <td className="py-3 px-3 font-semibold text-text-primary">Total</td>
                 <td className="py-3 px-3" />
-                <td className="py-3 px-3 font-mono text-right text-purple font-bold tabular-nums">{formatCurrency(result.totalContributions)}</td>
+                <td className="py-3 px-3 font-mono text-right text-purple font-bold tabular-nums">{formatCurrency(yearlyData.reduce((sum, yd) => sum + yd.contributions, 0))}</td>
                 <td className="py-3 px-3 font-mono text-right text-teal font-bold tabular-nums">{formatCurrency(result.totalInterest)}</td>
                 <td className="py-3 px-3 font-mono text-right text-green font-bold tabular-nums">{formatCurrency(result.finalBalance)}</td>
                 {mode === 'advanced' && (

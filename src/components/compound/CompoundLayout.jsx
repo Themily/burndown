@@ -34,7 +34,11 @@ export default function CompoundLayout({
       taxRate: mode === 'advanced' ? compoundInputs.taxRate : 0,
     };
     return calculateCompoundGrowth(inputs);
-  }, [compoundInputs, mode]);
+  }, [
+    compoundInputs.principal, compoundInputs.annualRate, compoundInputs.years,
+    compoundInputs.contributionAmount, compoundInputs.contributionFreq, compoundInputs.compoundingFreq,
+    compoundInputs.inflationRate, compoundInputs.taxRate, mode,
+  ]);
 
   // Calculate results for Scenario B (Advanced mode only)
   const resultB = useMemo(() => {

@@ -10,10 +10,11 @@ const FREQ_OPTIONS = [
 function InputField({ label, tooltip, value, onChange, prefix, suffix, min = 0, max, step = 1 }) {
   const { symbol } = useCurrency();
   const displayPrefix = prefix === 'currency' ? symbol : prefix;
+  const fieldId = `compound-${label.toLowerCase().replace(/\s+/g, '-')}`;
 
   return (
     <div>
-      <label className="flex items-center gap-1.5 text-text-secondary text-sm font-medium mb-2">
+      <label htmlFor={fieldId} className="flex items-center gap-1.5 text-text-secondary text-sm font-medium mb-2">
         {label}
         {tooltip && (
           <span className="group relative cursor-help">
@@ -35,9 +36,16 @@ function InputField({ label, tooltip, value, onChange, prefix, suffix, min = 0, 
           </span>
         )}
         <input
+          id={fieldId}
+          aria-label={label}
           type="number"
           value={value}
-          onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+          onChange={(e) => {
+            let v = parseFloat(e.target.value) || 0;
+            if (min != null) v = Math.max(min, v);
+            if (max != null) v = Math.min(max, v);
+            onChange(v);
+          }}
           min={min}
           max={max}
           step={step}
@@ -54,9 +62,11 @@ function InputField({ label, tooltip, value, onChange, prefix, suffix, min = 0, 
 }
 
 function SelectField({ label, tooltip, value, onChange, options }) {
+  const fieldId = `compound-${label.toLowerCase().replace(/\s+/g, '-')}`;
+
   return (
     <div>
-      <label className="flex items-center gap-1.5 text-text-secondary text-sm font-medium mb-2">
+      <label htmlFor={fieldId} className="flex items-center gap-1.5 text-text-secondary text-sm font-medium mb-2">
         {label}
         {tooltip && (
           <span className="group relative cursor-help">
@@ -71,7 +81,7 @@ function SelectField({ label, tooltip, value, onChange, options }) {
           </span>
         )}
       </label>
-      <select value={value} onChange={(e) => onChange(e.target.value)}>
+      <select id={fieldId} aria-label={label} value={value} onChange={(e) => onChange(e.target.value)}>
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>{opt.label}</option>
         ))}

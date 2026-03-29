@@ -59,7 +59,7 @@ export default function CompoundChart({ result, resultB, mode }) {
         </div>
       </div>
       <div className="h-[350px] md:h-[400px]">
-        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+        <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
           <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
             <defs>
               <linearGradient id="gradContributions" x1="0" y1="0" x2="0" y2="1">
@@ -83,9 +83,12 @@ export default function CompoundChart({ result, resultB, mode }) {
               tickLine={false}
               tick={{ fill: '#5c5c7a', fontSize: 11, fontFamily: 'var(--font-mono)' }}
               tickFormatter={(v) => {
-                if (v >= 1000000) return `${symbol}${(v / 1000000).toFixed(1)}M`;
-                if (v >= 1000) return `${symbol}${(v / 1000).toFixed(0)}k`;
-                return `${symbol}${v}`;
+                let short;
+                if (v >= 1000000) short = `${(v / 1000000).toFixed(1)}M`;
+                else if (v >= 1000) short = `${(v / 1000).toFixed(0)}k`;
+                else short = `${v}`;
+                const formatted = formatCurrency(1).replace(/[\d.,]+/, short);
+                return formatted;
               }}
               width={65}
             />

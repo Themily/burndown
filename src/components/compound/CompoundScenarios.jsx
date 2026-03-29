@@ -10,18 +10,25 @@ const FREQ_OPTIONS = [
 function InputField({ label, value, onChange, prefix, suffix, min = 0, step = 1 }) {
   const { symbol } = useCurrency();
   const displayPrefix = prefix === 'currency' ? symbol : prefix;
+  const fieldId = `scenario-b-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 
   return (
     <div>
-      <label className="text-text-secondary text-xs font-medium mb-1 block">{label}</label>
+      <label htmlFor={fieldId} className="text-text-secondary text-xs font-medium mb-1 block">{label}</label>
       <div className="relative">
         {displayPrefix && (
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-xs font-mono pointer-events-none">{displayPrefix}</span>
         )}
         <input
+          id={fieldId}
+          aria-label={label}
           type="number"
           value={value}
-          onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+          onChange={(e) => {
+            let v = parseFloat(e.target.value) || 0;
+            if (min != null) v = Math.max(min, v);
+            onChange(v);
+          }}
           min={min}
           step={step}
           className={`text-sm ${displayPrefix ? 'pl-7' : ''}`}
@@ -88,19 +95,19 @@ export default function CompoundScenarios({ resultA, resultB, scenarioBInputs, s
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <InputField label="Principal" value={scenarioBInputs.principal} onChange={(v) => updateB('principal', v)} prefix="currency" />
           <InputField label="Rate (%)" value={scenarioBInputs.annualRate} onChange={(v) => updateB('annualRate', v)} suffix="%" step={0.1} />
-          <InputField label="Years" value={scenarioBInputs.years} onChange={(v) => updateB('years', Math.max(1, Math.round(v)))} suffix="yr" min={1} />
+          <InputField label="Years" value={scenarioBInputs.years} onChange={(v) => updateB('years', Math.max(1, Math.min(100, Math.round(v))))} suffix="yr" min={1} />
           <InputField label="Contribution" value={scenarioBInputs.contributionAmount} onChange={(v) => updateB('contributionAmount', v)} prefix="currency" />
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
           <div>
-            <label className="text-text-secondary text-xs font-medium mb-1 block">Contribution Freq.</label>
-            <select value={scenarioBInputs.contributionFreq} onChange={(e) => updateB('contributionFreq', e.target.value)} className="text-sm">
+            <label htmlFor="scenario-b-contribution-freq" className="text-text-secondary text-xs font-medium mb-1 block">Contribution Freq.</label>
+            <select id="scenario-b-contribution-freq" aria-label="Contribution Frequency" value={scenarioBInputs.contributionFreq} onChange={(e) => updateB('contributionFreq', e.target.value)} className="text-sm">
               {FREQ_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </div>
           <div>
-            <label className="text-text-secondary text-xs font-medium mb-1 block">Compounding Freq.</label>
-            <select value={scenarioBInputs.compoundingFreq} onChange={(e) => updateB('compoundingFreq', e.target.value)} className="text-sm">
+            <label htmlFor="scenario-b-compounding-freq" className="text-text-secondary text-xs font-medium mb-1 block">Compounding Freq.</label>
+            <select id="scenario-b-compounding-freq" aria-label="Compounding Frequency" value={scenarioBInputs.compoundingFreq} onChange={(e) => updateB('compoundingFreq', e.target.value)} className="text-sm">
               {FREQ_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </div>

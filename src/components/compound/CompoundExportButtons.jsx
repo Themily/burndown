@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useCurrency } from '../../context/CurrencyContext';
 import { exportCompoundPDF, exportCompoundExcel } from '../../utils/compoundExportUtils';
 
@@ -7,25 +7,25 @@ export default function CompoundExportButtons({ inputs, result, resultB }) {
   const [exportingPDF, setExportingPDF] = useState(false);
   const [exportingXLSX, setExportingXLSX] = useState(false);
 
-  const exportData = { inputs, result, resultB, currencyCode: currency };
-
-  const handlePDF = useCallback(() => {
+  const handlePDF = () => {
     setExportingPDF(true);
+    const exportData = { inputs, result, resultB, currencyCode: currency };
     setTimeout(() => {
       try { exportCompoundPDF(exportData); }
       catch (e) { console.error('PDF export failed:', e); }
       setExportingPDF(false);
     }, 50);
-  }, [exportData]);
+  };
 
-  const handleExcel = useCallback(() => {
+  const handleExcel = () => {
     setExportingXLSX(true);
+    const exportData = { inputs, result, resultB, currencyCode: currency };
     setTimeout(() => {
       try { exportCompoundExcel(exportData); }
       catch (e) { console.error('Excel export failed:', e); }
       setExportingXLSX(false);
     }, 50);
-  }, [exportData]);
+  };
 
   return (
     <div className="card mx-4 mb-10 print:hidden">
